@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Buckeye · Operations Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ── REN HAZUKI THEME TOKENS & RESET ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Ren Hazuki Inspired Palette - Elegant, Disciplined, Professional */
+  --primary: #1C2A4A;        /* Deep Navy */
+  --primary-light: #283C6A;  /* Lighter Navy */
+  --surface: #FFFFFF;        /* Pure White */
+  --bg: #F4F6F9;             /* Soft Cool Gray */
+  --ink: #0F172A;            /* Slate 900 */
+  --ink2: #334155;           /* Slate 700 */
+  --muted: #64748B;          /* Slate 500 */
+  --border: #E2E8F0;         /* Slate 200 */
+  --gold: #B49A45;           /* Refined Brass/Gold */
+  
+  /* Status Colors */
+  --green: #059669;          /* Emerald */
+  --red: #BE123C;            /* Crimson */
+  --red-bg: #FFE4E6;         /* Rose bg for outliers */
+  
+  --radius: 8px; 
+  --radius-sm: 4px;
+  --shadow: 0 1px 2px 0 rgba(28, 42, 74, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(28, 42, 74, 0.1), 0 2px 4px -1px rgba(28, 42, 74, 0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+/* ── TOPBAR ── */
+.topbar { background: var(--primary); color: #fff; padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-md); }
+.topbar-brand { display: flex; align-items: center; gap: 12px; }
+.topbar-brand svg { width: 24px; height: 24px; color: var(--gold); }
+.topbar-brand .name { font-weight: 700; font-size: 1.15rem; letter-spacing: -.01em; }
+.topbar-brand .sep { color: #475569; }
+.topbar-brand .sub { font-size: .85rem; color: #CBD5E1; font-weight: 500; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.sync-status { font-size: .75rem; color: #cbd5e1; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); padding: 6px 12px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.1); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #64748b; flex-shrink: 0; }
+.dot.live { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,0.6); animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+.badge { font-size: .68rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; letter-spacing: .05em; text-transform: uppercase; }
+.badge-green { background: #D1FAE5; color: #065f46; }
+.badge-amber { background: #FEF3C7; color: #92400E; }
+.badge-muted { background: rgba(255,255,255,0.1); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.2); }
+
+/* ── TOOLBAR ── */
+.toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 28px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; position: sticky; top: 60px; z-index: 99; box-shadow: var(--shadow); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); font-size: .8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--ink); transition: all .15s; }
+.btn:hover { background: #F8FAFC; border-color: var(--muted); }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover { background: #F1F5F9; color: var(--ink); }
+.tdiv { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+select.flt { padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-size: .8rem; color: var(--ink); font-weight: 500; cursor: pointer; outline: none; }
+select.flt:focus { border-color: var(--primary); }
+.metric-grp { display: flex; background: #F1F5F9; border-radius: var(--radius-sm); padding: 3px; gap: 2px; }
+.m-btn { padding: 5px 12px; border-radius: 4px; font-size: .75rem; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all .15s; }
+.m-btn.on { background: var(--surface); color: var(--primary); box-shadow: var(--shadow); font-weight: 700; }
+
+/* ── MULTISELECT FILTER ── */
+.ms-wrap { position: relative; display: inline-block; }
+.ms-btn { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 170px; padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: .8rem; font-weight: 600; color: var(--ink); cursor: pointer; }
+.ms-btn:hover { background: #f8fafc; }
+.ms-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 250px; max-height: 350px; overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); z-index: 1000; padding: 8px; }
+.ms-dropdown.show { display: block; animation: fadeIn .15s ease; }
+.ms-actions { display: flex; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; margin-bottom: 6px; }
+.ms-action-btn { flex: 1; font-size: .7rem; padding: 4px; text-align: center; background: #f1f5f9; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: var(--ink2); }
+.ms-action-btn:hover { background: #e2e8f0; }
+.ms-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: .8rem; cursor: pointer; border-radius: 4px; user-select: none; }
+.ms-item:hover { background: #f1f5f9; }
+.ms-item input { cursor: pointer; accent-color: var(--primary); width: 15px; height: 15px; }
+.ms-global { border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 6px; font-weight: 700; color: var(--primary); background: #F8FAFC; }
+
+/* ── KPI STRIP ── */
+.kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
+.kpi-tile { padding: 20px 24px; border-right: 1px solid var(--border); transition: background .15s; border-top: 3px solid transparent; }
+.kpi-tile:hover { background: #F8FAFC; border-top-color: var(--gold); }
+.kpi-tile:last-child { border-right: none; }
+.kpi-lbl { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.kpi-val { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-top: 6px; color: var(--primary); font-variant-numeric: tabular-nums; }
+
+/* ── MAIN CONTENT & TABS ── */
+.content { padding: 24px 28px 80px; max-width: 1800px; margin: 0 auto; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.tab { padding: 12px 20px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; }
+.tab:hover { color: var(--ink); }
+.tab.on { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
+.panel { display: none; animation: fadeIn .2s ease-in-out; }
+.panel.on { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ── DATA TABLES (General) ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.scroll-box { overflow: auto; max-height: 65vh; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .82rem; }
+th, td { padding: 12px 14px; border-bottom: 1px solid #E2E8F0; white-space: nowrap; }
+thead th { background: var(--primary); color: #fff; position: sticky; top: 0; z-index: 3; font-size: .7rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; border-right: 1px solid rgba(255,255,255,0.1); }
+thead th:last-child { border-right: none; }
+thead th:first-child { left: 0; z-index: 4; }
+tbody th { position: sticky; left: 0; z-index: 2; background: #F8FAFC; font-weight: 600; border-right: 1px solid var(--border); color: var(--ink2); }
+td { text-align: center; font-variant-numeric: tabular-nums; border-right: 1px solid #F1F5F9; }
+td:last-child { border-right: none; }
+td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 600; }
+td.dim { color: #94A3B8; background: #FCFCFD; }
+.row-total th { background: var(--primary-light); color: #fff; border-right: 1px solid rgba(255,255,255,0.2); }
+.row-total td { background: #F8FAFC; color: var(--primary); font-weight: 700; font-family: ui-monospace, monospace; }
+tr:hover td, tr:hover th { background: #F8FAFC; }
+
+/* ── COLLAPSIBLE AUTO-FIT TEAM MASONRY ── */
+.panel-toolbar { display: flex; justify-content: flex-end; margin-bottom: 16px; gap: 8px; }
+.auto-fit-teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; align-items: start; }
+.tl-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s; }
+.tl-card:hover { border-color: var(--primary-light); }
+.tl-header { padding: 14px 18px; background: #F8FAFC; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+.tl-title-area { display: flex; align-items: center; gap: 10px; }
+.tl-indicator { font-size: 0.6rem; color: var(--muted); transition: transform 0.2s; transform: rotate(-90deg); }
+.tl-card.open .tl-indicator { transform: rotate(0deg); }
+.tl-title { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+.tl-sub { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+.tl-aht-box { text-align: right; }
+.tl-aht-lbl { font-size: .62rem; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+.tl-aht-val { font-size: 1.15rem; font-weight: 800; font-family: ui-monospace, monospace; line-height: 1.1; margin-top: 2px; }
+/* STRICT AUTO-FIT TABLE LOGIC */
+.tl-body { display: none; }
+.tl-card.open .tl-body { display: block; animation: fadeIn 0.2s ease; }
+.tl-table-wrap { width: 100%; }
+.tl-table-wrap table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.8rem; border: none; }
+.tl-table-wrap th { background: var(--surface); color: var(--muted); font-size: .65rem; padding: 8px 12px; border-bottom: 1px solid var(--border); border-right: none; position: static; }
+.tl-table-wrap td { padding: 8px 12px; border-bottom: 1px solid #F1F5F9; border-right: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-table-wrap tr:last-child td { border-bottom: none; }
+.skill-pill { display: inline-block; font-size: .65rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: #F1F5F9; border: 1px solid var(--border); color: var(--ink2); }
+
+/* ── CLEAN PROFESSIONAL LEADERBOARD ── */
+.lb-arena-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: var(--surface); padding: 12px 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.lb-arena-title { font-weight: 700; font-size: 1.05rem; color: var(--primary); }
+.sort-btn-group { display: flex; gap: 8px; align-items: center; }
+.sort-lbl { font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-right: 6px; }
+.sort-pill { padding: 6px 14px; border-radius: var(--radius-sm); font-size: .78rem; font-weight: 600; border: 1px solid var(--border); background: var(--bg); color: var(--ink); cursor: pointer; transition: all .15s; }
+.sort-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.sort-pill:hover:not(.active) { background: #E2E8F0; }
+
+.lb-clean-container { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.lb-clean-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.lb-clean-row:hover { background: #F8FAFC; }
+.lb-clean-row:last-child { border-bottom: none; }
+.lb-rank-clean { width: 32px; font-size: .85rem; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+.lb-info-clean { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.lb-name-clean { font-weight: 600; font-size: .95rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub-clean { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+.lb-stats-clean { display: flex; gap: 24px; align-items: center; flex-shrink: 0; text-align: right; }
+.lb-stat-group { display: flex; flex-direction: column; align-items: flex-end; }
+.lb-stat-lbl { font-size: .65rem; font-weight: 600; text-transform: uppercase; color: var(--muted); }
+.lb-stat-val { font-size: 1.1rem; font-weight: 700; font-family: ui-monospace, monospace; margin-top: 2px; }
+
+/* ── OUTLIER HIGHLIGHTS ── */
+.outlier-aht { color: var(--red) !important; background: var(--red-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid #FDA4AF; }
+
+/* ── ROSTER TOOLBAR ── */
+.roster-toolbar { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; background: #F8FAFC; }
+.roster-toolbar input { flex: 1; padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: .85rem; outline: none; font-family: inherit; }
+.roster-toolbar input:focus { border-color: var(--primary); }
+.pill { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: .68rem; font-weight: 600; }
+.pill-ok { background: #D1FAE5; color: #065F46; }
+.pill-warn { background: var(--red-bg); color: var(--red); }
+
+/* ── LOADER ── */
+#loader { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.8); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; backdrop-filter: blur(4px); }
+#loader.on { display: flex; }
+.spin { width: 42px; height: 42px; border: 4px solid rgba(255,255,255,.2); border-top-color: var(--gold); border-radius: 50%; animation: rot .7s linear infinite; }
+@keyframes rot { to { transform: rotate(360deg); } }
+#ldMsg { color: #fff; font-size: .95rem; font-weight: 600; }
+
+@media(max-width: 1100px) { .kpi-strip { grid-template-columns: repeat(3, 1fr); } }
+@media(max-width: 700px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } .lb-arena-controls { flex-direction: column; gap: 12px; align-items: flex-start; } .auto-fit-teams { grid-template-columns: 1fr; } .lb-stats-clean { gap: 12px; } }
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="spin"></div><div id="ldMsg">Loading…</div></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <span class="name">Buckeye Operations Dashboard </span>
+    <span class="sep">/</span>
+    <span class="sub" id="dateRange">Operations Dashboard</span>
+  </div>
+  <div class="topbar-right">
+    <div class="sync-status"><div class="dot" id="syncDot"></div><span id="statusMsg">Not synced</span></div>
+    <span class="badge badge-muted" id="rosterBadge">ROSTER —</span>
+    <span style="font-size:.85rem; font-weight:600; color:#F8FAFC;">Kim 🌸</span>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="syncAll()">⬇ Sync All</button>
+  <button class="btn" onclick="syncLogs()">📊 Logs</button>
+  <button class="btn" onclick="syncRosterDB()">👥 Roster</button>
+  <div class="tdiv"></div>
+  <button class="btn btn-ghost" onclick="trigUp('csvIn')">📂 Upload Logs</button>
+  <input type="file" id="csvIn" accept=".csv" hidden>
+  <button class="btn btn-ghost" onclick="trigUp('xlsIn')">📋 Upload Roster</button>
+  <input type="file" id="xlsIn" accept=".xlsx,.csv" hidden>
+  <div class="tdiv"></div>
+  <div class="metric-grp">
+    <button class="m-btn on" data-m="AHT">AHT</button>
+    <button class="m-btn" data-m="Talk">Talk</button>
+    <button class="m-btn" data-m="ACW">ACW</button>
+    <button class="m-btn" data-m="Hold">Hold</button>
+  </div>
+  <div class="tdiv"></div>
+  
+  <!-- INTERACTIVE MULTISELECT TEAMS WITH GLOBAL VIEW -->
+  <div class="ms-wrap" id="msWrap">
+    <div class="ms-btn" onclick="toggleMS()">
+      <span id="msLabel">All Teams</span>
+      <span style="font-size:.65rem">▼</span>
+    </div>
+    <div class="ms-dropdown" id="msDropdown">
+      <label class="ms-item ms-global">
+        <input type="checkbox" id="globalAgentsToggle" onchange="toggleGlobalAgents(this)">
+        <span>🌐 View Full Agent Roster</span>
+      </label>
+      <div class="ms-actions" id="teamActionButtons">
+        <button class="ms-action-btn" onclick="setAllTeams(true)">Select All</button>
+        <button class="ms-action-btn" onclick="setAllTeams(false)">Clear All</button>
+      </div>
+      <div id="msItemsList"></div>
+    </div>
+  </div>
+
+  <select class="flt" id="fCamp"><option value="">All Campaigns</option></select>
+  <select class="flt" id="fCls"><option value="">All Classifications</option></select>
+</div>
+
+<!-- KPI STRIP -->
+<div class="kpi-strip">
+  <div class="kpi-tile"><div class="kpi-lbl">📞 Offered</div><div class="kpi-val" id="kOffered">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">✅ Handled</div><div class="kpi-val" id="kHandled">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">❌ Abandoned</div><div class="kpi-val" id="kAband">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">📉 Abandon %</div><div class="kpi-val" id="kAbanPct">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">⏱ Overall AHT (Tgt: 10:50)</div><div class="kpi-val" id="kAHT">—</div></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+  <div class="tabs">
+    <button class="tab on" data-tab="heatmap">📊 Interval Heatmap</button>
+    <button class="tab" data-tab="team">🏢 Team AHT</button>
+    <button class="tab" data-tab="leaderboard">📋 Floor Leaderboard</button>
+    <button class="tab" data-tab="agents">👤 All Agents</button>
+    <button class="tab" data-tab="roster">🗺 Roster Map</button>
+  </div>
+
+  <!-- HEATMAP -->
+  <div class="panel on" id="panel-heatmap">
+    <div class="card"><div class="scroll-box">
+      <table><thead id="hmHead"><tr><th>Interval</th><th colspan="8" style="font-weight:400;color:#94a3b8;">— sync data to populate —</th></tr></thead>
+      <tbody id="hmBody"></tbody></table>
+    </div></div>
+  </div>
+
+  <!-- COLLAPSIBLE AUTO-FIT TEAM MASONRY -->
+  <div class="panel" id="panel-team">
+    <div class="panel-toolbar">
+      <button class="btn btn-ghost" onclick="toggleAllAccordions(true)">Expand All</button>
+      <button class="btn btn-ghost" onclick="toggleAllAccordions(false)">Collapse All</button>
+    </div>
+    <div class="auto-fit-teams" id="teamMasonryCont">
+      <p style="color:var(--muted);padding:40px;text-align:center;grid-column:1/-1;">Sync data to populate team views</p>
+    </div>
+  </div>
+
+  <!-- CLEAN LEADERBOARD -->
+  <div class="panel" id="panel-leaderboard">
+    <div class="lb-arena-controls">
+      <div class="lb-arena-title">Floor Performance Ranking</div>
+      <div class="sort-btn-group">
+        <span class="sort-lbl">Sort By:</span>
+        <button class="sort-pill active" id="sortAHT" onclick="setArenaSort('aht')">⏱️ AHT ▲</button>
+        <button class="sort-pill" id="sortCalls" onclick="setArenaSort('calls')">📞 Calls Handled ▼</button>
+      </div>
+    </div>
+    <div id="spacedArenaCont"></div>
+  </div>
+
+  <!-- ALL AGENTS -->
+  <div class="panel" id="panel-agents">
+    <div class="card"><div class="scroll-box">
+      <table><thead><tr>
+        <th style="text-align:left">#</th>
+        <th style="text-align:left">Agent</th>
+        <th style="text-align:left">APM</th>
+        <th>Classification</th>
+        <th>Handled</th><th>AHT</th><th>Talk</th><th>ACW</th><th>Hold</th>
+      </tr></thead><tbody id="agentBody"></tbody></table>
+    </div></div>
+  </div>
+
+  <!-- ROSTER -->
+  <div class="panel" id="panel-roster">
+    <div class="card">
+      <div class="roster-toolbar">
+        <input type="text" id="rSearch" placeholder="Search name, email, APM, batch…" oninput="renderRoster()">
+        <button class="btn" onclick="exportRoster()">⬇ Export</button>
+      </div>
+      <div class="scroll-box">
+        <table><thead><tr>
+          <th>Status</th><th>eID</th><th style="text-align:left">Name</th>
+          <th style="text-align:left">APM</th><th>Batch</th><th>Role</th>
+          <th style="text-align:left">Email</th>
+        </tr></thead><tbody id="rosterBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────
+   CONFIG (CORS-Bypass Fixed for Dropbox Roster)
+───────────────────────────────────────────── */
+const LOGS_URL   = "https://dl.dropboxusercontent.com/scl/fi/zi1qj2fyb7tidr2cxupkz/Tableau-Call-Log-Report-v4-eClerx-Skills-Combined-Hourly.csv?rlkey=bzpk2fg47qjv0wpid3u6dgrip&st=z5jg33b7&raw=1";
+const ROSTER_URL = "https://dl.dropboxusercontent.com/scl/fi/yj6w22v8ot8ij2w0c9et5/Agent_Mapping2.xlsx?rlkey=rn1gx2ginuhfebnz33h3ogwem&st=lb6hcqyy&raw=1";
+const RC = {eid:0, name:1, apm:2, role:3, status:4, email:5, batch:6};
+
+/* ─────────────────────────────────────────────
+   STATE
+───────────────────────────────────────────── */
+let RAW=[], ROSTER=new Map(), METRIC='AHT';
+let SELECTED_TEAMS = new Set();
+let GLOBAL_AGENTS_VIEW = false;
+let ARENA_SORT = { metric: 'aht', asc: true };
+const IVLS=Array.from({length:48},(_,i)=>`${String(Math.floor(i/2)).padStart(2,'0')}:${i%2?'30':'00'}`);
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+/* ─────────────────────────────────────────────
+   UTILS
+───────────────────────────────────────────── */
+const hms2s=s=>{if(!s||typeof s!='string')return 0;const p=s.trim().split(':').map(Number);return p.length===3?p[0]*3600+p[1]*60+p[2]:p.length===2?p[0]*60+p[1]:0;};
+const s2mm=s=>{if(!isFinite(s)||s<=0)return'—';const m=Math.floor(s/60),sec=Math.round(s%60);return`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;};
+const ivOf=ts=>{try{const d=new Date(ts);if(isNaN(d))return'00:00';return`${String(d.getHours()).padStart(2,'0')}:${d.getMinutes()<30?'00':'30'}`;}catch{return'00:00';}};
+const dowOf=s=>{try{return new Date(s.replace(/\//g,'-')).getDay();}catch{return -1;}};
+const aKey=r=>(r['AGENT']||r['Agent']||'').toLowerCase().trim();
+const lookup=e=>ROSTER.get(e)||{eid:'—',name:e.split('@')[0].replace('.',' ').replace(/\b\w/g,c=>c.toUpperCase()),apm:'Unassigned',role:'—',status:'—',batch:'—'};
+
+/* STRICT RED/GREEN HIGHLIGHT FOR AHT > 650 */
+const getAhtColor = (val) => val > 650 ? 'var(--red)' : 'var(--green)';
+
+/* AGGRESSIVE FUZZY CSV SKILL CLASSIFICATION */
+function getSkillClassification(rowObj){
+  let sVal = '';
+  const possibleHeaders = ['skill', 'Skill', 'skills', 'Skills', 'SLBOS.Classification', 'AGENT GROUP', 'Queue Name', 'Group'];
+  for(let key of Object.keys(rowObj)){
+    let cleanKey = key.trim();
+    if(possibleHeaders.includes(cleanKey) || cleanKey.toLowerCase().includes('skill')){
+      sVal = String(rowObj[key] || '').trim();
+      if(sVal) break;
+    }
+  }
+  
+  if(sVal === "MaxxSouth - Universal Backup") return "Combined";
+  const techSkills = ["MS Business Tech Support", "MS HSD - Tech Support", "MS Video - Tech Support", "Technical Support"];
+  if(techSkills.includes(sVal)) return "Tech";
+  const billingSkills = ["Billing Info", "MS Payment", "Payment"];
+  if(billingSkills.includes(sVal)) return "Billing";
+  return sVal || "Other";
+}
+
+/* ─────────────────────────────────────────────
+   ROSTER PARSE
+───────────────────────────────────────────── */
+function parseRoster(rows){
+  ROSTER=new Map(); let n=0;
+  for(let i=1; i<rows.length; i++){
+    const r=rows[i]; if(!r||!r.length) continue;
+    const raw=String(r[RC.email]||'').toLowerCase().trim();
+    if(!raw) continue;
+    const key=raw.includes('@')?raw:raw+'@eclerx.com';
+    ROSTER.set(key,{eid:String(r[RC.eid]||'—').trim(), name:String(r[RC.name]||'—').trim(),
+      apm:String(r[RC.apm]||'Unassigned').trim(), role:String(r[RC.role]||'—').trim(),
+      status:String(r[RC.status]||'—').trim(), batch:String(r[RC.batch]||'—').trim()}); n++;
+  }
+  return n;
+}
+
+/* ─────────────────────────────────────────────
+   ENRICH (Fuzzy CSV Column Handling)
+───────────────────────────────────────────── */
+function enrich(data){
+  return data.map(row=>{
+    let cleanRow = {};
+    Object.keys(row).forEach(k => cleanRow[k.trim()] = row[k]);
+
+    const ct=(cleanRow['CALL TYPE']||cleanRow['Call Type']||'').trim();
+    const ab=Number(cleanRow['ABANDONED']||cleanRow['Abandoned']||0)===1;
+    const ib=ct==='Inbound';
+    const hd=ib&&!ab&&!!(cleanRow['TALK TIME']||cleanRow['Talk Time']);
+    const em=aKey(cleanRow);
+    const ro=lookup(em);
+    
+    return{_r:cleanRow, ct, ab, ib, hd, agent:em, name:ro.name, apm:ro.apm, batch:ro.batch, eid:ro.eid, role:ro.role,
+      campaign:(cleanRow['CAMPAIGN']||cleanRow['Campaign']||'').trim(), cls: getSkillClassification(cleanRow),
+      iv:ivOf(cleanRow['TIMESTAMP']||cleanRow['DATE']||cleanRow['Date']), dow:dowOf(cleanRow['DATE']||cleanRow['Date']),
+      tk:hms2s(cleanRow['TALK TIME']||cleanRow['Talk Time']), hl:hms2s(cleanRow['HOLD TIME']||cleanRow['Hold Time']), aw:hms2s(cleanRow['AFTER CALL WORK TIME']||cleanRow['ACW Time'])};
+  });
+}
+
+/* ─────────────────────────────────────────────
+   AHT CALC
+───────────────────────────────────────────── */
+function aht(rows,m){
+  const h=rows.filter(r=>r.hd); if(!h.length) return null;
+  const n=h.length, tk=h.reduce((a,r)=>a+r.tk,0), hl=h.reduce((a,r)=>a+r.hl,0), aw=h.reduce((a,r)=>a+r.aw,0);
+  return m==='Talk'?tk/n:m==='Hold'?hl/n:m==='ACW'?aw/n:(tk+hl+aw)/n;
+}
+
+/* ─────────────────────────────────────────────
+   FILTERED
+───────────────────────────────────────────── */
+function filt(){
+  const fc=document.getElementById('fCamp').value;
+  const fl=document.getElementById('fCls').value;
+  return RAW.filter(r=>{
+    const teamMatch = GLOBAL_AGENTS_VIEW || SELECTED_TEAMS.size === 0 || SELECTED_TEAMS.has(r.apm);
+    return teamMatch && (!fc||r.campaign===fc) && (!fl||r.cls===fl);
+  });
+}
+
+/* ─────────────────────────────────────────────
+   MULTISELECT & GLOBAL TOGGLE UI
+───────────────────────────────────────────── */
+function toggleMS(){ document.getElementById('msDropdown').classList.toggle('show'); }
+window.addEventListener('click', e => {
+  if (!document.getElementById('msWrap').contains(e.target)) {
+    document.getElementById('msDropdown').classList.remove('show');
+  }
+});
+
+function populateTeamsList(){
+  const allTeams = [...new Set(RAW.map(r=>r.apm).filter(Boolean))].sort();
+  if(SELECTED_TEAMS.size === 0) allTeams.forEach(t => SELECTED_TEAMS.add(t));
+  
+  const cont = document.getElementById('msItemsList');
+  cont.innerHTML = allTeams.map(t => `
+    <label class="ms-item">
+      <input type="checkbox" class="team-cb" value="${t}" ${SELECTED_TEAMS.has(t)?'checked':''} ${GLOBAL_AGENTS_VIEW?'disabled':''} onchange="updateTeamSelection(this)">
+      <span style="${t==='Unassigned'?'color:#ef4444;font-style:italic;':''} ${GLOBAL_AGENTS_VIEW?'opacity:.4':''}">${t}</span>
+    </label>
+  `).join('');
+  updateMSLabel();
+}
+
+function toggleGlobalAgents(cb){
+  GLOBAL_AGENTS_VIEW = cb.checked;
+  const teamCbs = document.querySelectorAll('.team-cb');
+  const btns = document.getElementById('teamActionButtons');
+  btns.style.opacity = GLOBAL_AGENTS_VIEW ? '.3' : '1';
+  btns.style.pointerEvents = GLOBAL_AGENTS_VIEW ? 'none' : 'auto';
+  
+  teamCbs.forEach(input => {
+    input.disabled = GLOBAL_AGENTS_VIEW;
+    input.parentElement.querySelector('span').style.opacity = GLOBAL_AGENTS_VIEW ? '.4' : '1';
+  });
+  
+  updateMSLabel();
+  if(RAW.length) renderAll(false);
+}
+
+function updateTeamSelection(cb){
+  if(cb.checked) SELECTED_TEAMS.add(cb.value);
+  else SELECTED_TEAMS.delete(cb.value);
+  updateMSLabel();
+  if(RAW.length) renderAll(false);
+}
+
+function setAllTeams(val){
+  if(GLOBAL_AGENTS_VIEW) return;
+  const cbs = document.querySelectorAll('.team-cb');
+  SELECTED_TEAMS.clear();
+  cbs.forEach(cb => {
+    cb.checked = val;
+    if(val) SELECTED_TEAMS.add(cb.value);
+  });
+  updateMSLabel();
+  if(RAW.length) renderAll(false);
+}
+
+function updateMSLabel(){
+  const lbl = document.getElementById('msLabel');
+  if(GLOBAL_AGENTS_VIEW){
+    lbl.textContent = "🌐 Full Agent List";
+    lbl.style.color = "var(--primary)";
+    return;
+  }
+  lbl.style.color = "var(--ink)";
+  const total = document.querySelectorAll('.team-cb').length;
+  if(SELECTED_TEAMS.size === total || SELECTED_TEAMS.size === 0) lbl.textContent = "All Teams";
+  else lbl.textContent = `${SELECTED_TEAMS.size} Teams Selected`;
+}
+
+/* ─────────────────────────────────────────────
+   RENDER HEATMAP
+───────────────────────────────────────────── */
+function renderHeatmap(){
+  const rows=filt();
+  const days=[...new Set(rows.map(r=>r.dow))].filter(d=>d>=0).sort();
+  const pivot={};
+  IVLS.forEach(iv=>{pivot[iv]={}; days.forEach(d=>pivot[iv][d]=[]);});
+  rows.forEach(r=>{if(r.dow>=0&&pivot[r.iv]) pivot[r.iv][r.dow].push(r);});
+
+  const cv={};
+  IVLS.forEach(iv=>{cv[iv]={}; days.forEach(d=>{cv[iv][d]=aht(pivot[iv][d]||[],METRIC);});});
+
+  document.getElementById('hmHead').innerHTML=
+    `<tr><th>Interval</th>${days.map(d=>`<th>${DAYS[d]}</th>`).join('')}<th>Row Avg</th></tr>`;
+
+  let html='';
+  IVLS.forEach(iv=>{
+    const allR=days.flatMap(d=>pivot[iv][d]||[]);
+    const tot=aht(allR,METRIC);
+    const hasAny=days.some(d=>cv[iv][d]!==null);
+    if(!hasAny){html+=`<tr><th>${iv}</th>${days.map(()=>`<td class="dim">—</td>`).join('')}<td class="dim">—</td></tr>`; return;}
+    html+=`<tr><th>${iv}</th>`;
+    days.forEach(d=>{
+      const v=cv[iv][d];
+      if(v===null){html+=`<td class="dim">—</td>`; return;}
+      html+=`<td class="mono" style="color:${v > 650 ? 'var(--red)' : 'var(--ink)'}; font-weight:${v > 650 ? '700':'500'}">${s2mm(v)}</td>`;
+    });
+    html+=`<td class="mono" style="background:#F1F5F9; font-weight:800">${s2mm(tot)}</td></tr>`;
+  });
+
+  html+=`<tr class="row-total"><th>TOTAL</th>`;
+  days.forEach(d=>{html+=`<td>${s2mm(aht(rows.filter(r=>r.dow===d),METRIC))}</td>`;});
+  html+=`<td>${s2mm(aht(rows,METRIC))}</td></tr>`;
+  document.getElementById('hmBody').innerHTML=html;
+}
+
+/* ─────────────────────────────────────────────
+   RENDER COLLAPSIBLE AUTO-FIT TEAM MASONRY
+───────────────────────────────────────────── */
+function renderTeam(){
+  const rows=filt();
+  const map={};
+  rows.forEach(r=>{
+    const k=r.apm||'Unassigned';
+    if(!map[k]) map[k]={agents:new Set(), rows:[]};
+    map[k].agents.add(r.agent); map[k].rows.push(r);
+  });
+
+  const teams=Object.entries(map).map(([apm,d])=>{
+    const h=d.rows.filter(r=>r.hd); const n=h.length;
+    const tk=h.reduce((a,r)=>a+r.tk,0), hl=h.reduce((a,r)=>a+r.hl,0), aw=h.reduce((a,r)=>a+r.aw,0);
+    const agentMap={};
+    h.forEach(r=>{
+      if(!agentMap[r.agent]) agentMap[r.agent]={name:r.name, cls:r.cls, n:0, tk:0, hl:0, aw:0};
+      const a=agentMap[r.agent]; a.n++; a.tk+=r.tk; a.hl+=r.hl; a.aw+=r.aw;
+    });
+    const agentList = Object.values(agentMap).map(a=>({...a, aht: a.n?(a.tk+a.hl+a.aw)/a.n:0})).sort((a,b)=>a.aht-b.aht);
+    return{apm, agentCount:d.agents.size, handled:n, vAHT:n?(tk+hl+aw)/n:0, agentList};
+  }).sort((a,b)=>a.vAHT-b.vAHT);
+
+  document.getElementById('teamMasonryCont').innerHTML=teams.map((t,i)=>{
+    return`<div class="tl-card open">
+      <div class="tl-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tl-title-area">
+          <span class="tl-indicator">▼</span>
+          <div>
+            <div class="tl-title">${t.apm}</div>
+            <div class="tl-sub">${t.agentCount} Agents · ${t.handled} Handled Calls</div>
+          </div>
+        </div>
+        <div class="tl-aht-box">
+          <div class="tl-aht-lbl">Team AHT</div>
+          <div class="tl-aht-val" style="color:${getAhtColor(t.vAHT)}">${s2mm(t.vAHT)}</div>
+        </div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-table-wrap">
+          <table>
+            <colgroup>
+              <col style="width: 45%;">
+              <col style="width: 25%;">
+              <col style="width: 15%;">
+              <col style="width: 15%;">
+            </colgroup>
+            <thead><tr><th style="text-align:left">Agent</th><th style="text-align:left">Class</th><th style="text-align:right">Calls</th><th style="text-align:right">AHT</th></tr></thead>
+            <tbody>
+              ${t.agentList.map(a=>`<tr>
+                <td style="text-align:left;font-weight:600;color:var(--ink);" title="${a.name}">${a.name}</td>
+                <td style="text-align:left;"><span class="skill-pill" title="${a.cls}">${a.cls}</span></td>
+                <td style="color:var(--muted);font-weight:600;text-align:right;">${a.n}</td>
+                <td class="mono" style="text-align:right; font-weight:700;">
+                  <span class="${a.aht > 650 ? 'outlier-aht' : ''}" style="color:${a.aht <= 650 ? 'var(--green)' : ''}">${s2mm(a.aht)}</span>
+                </td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAllAccordions(expand) {
+  document.querySelectorAll('.tl-card').forEach(card => {
+    if(expand) card.classList.add('open');
+    else card.classList.remove('open');
+  });
+}
+
+/* ─────────────────────────────────────────────
+   CLEAN LEADERBOARD & SORTING
+───────────────────────────────────────────── */
+function setArenaSort(metric){
+  if(ARENA_SORT.metric === metric) ARENA_SORT.asc = !ARENA_SORT.asc;
+  else { ARENA_SORT.metric = metric; ARENA_SORT.asc = (metric === 'aht'); }
+  
+  document.getElementById('sortAHT').className = 'sort-pill' + (ARENA_SORT.metric === 'aht' ? ' active' : '');
+  document.getElementById('sortCalls').className = 'sort-pill' + (ARENA_SORT.metric === 'calls' ? ' active' : '');
+  document.getElementById('sortAHT').innerHTML = `⏱️ AHT ${ARENA_SORT.metric==='aht' ? (ARENA_SORT.asc?'▲':'▼') : ''}`;
+  document.getElementById('sortCalls').innerHTML = `📞 Calls Handled ${ARENA_SORT.metric==='calls' ? (ARENA_SORT.asc?'▲':'▼') : ''}`;
+  renderLeaderboard();
+}
+
+function renderLeaderboard(){
+  const rows=filt();
+  const map={};
+  rows.forEach(r=>{
+    if(!r.hd) return;
+    if(!map[r.agent]) map[r.agent]={name:r.name, apm:r.apm, cls:r.cls, n:0, tk:0, hl:0, aw:0};
+    const a=map[r.agent]; a.n++; a.tk+=r.tk; a.hl+=r.hl; a.aw+=r.aw;
+  });
+
+  let agents = Object.values(map).filter(a=>a.n>=3).map(a=>({...a, ahtVal:(a.tk+a.hl+a.aw)/a.n}));
+  
+  if(!agents.length){
+    document.getElementById('spacedArenaCont').innerHTML='<p style="padding:40px;color:var(--muted);text-align:center;">Not enough qualifying calls to generate list (min 3 calls)</p>';
+    return;
+  }
+
+  agents.sort((a,b) => {
+    let valA = ARENA_SORT.metric === 'aht' ? a.ahtVal : a.n;
+    let valB = ARENA_SORT.metric === 'aht' ? b.ahtVal : b.n;
+    return ARENA_SORT.asc ? (valA - valB) : (valB - valA);
+  });
+
+  const buildCleanRow = (a, idx) => `
+    <div class="lb-clean-row">
+      <div class="lb-rank-clean">#${idx + 1}</div>
+      <div class="lb-info-clean">
+        <div class="lb-name-clean" title="${a.name}">${a.name}</div>
+        <div class="lb-sub-clean">${a.apm} · <span style="color:var(--ink2); font-weight:600;">${a.cls}</span></div>
+      </div>
+      <div class="lb-stats-clean">
+        <div class="lb-stat-group">
+          <div class="lb-stat-lbl">Calls</div>
+          <div class="lb-stat-val" style="color:var(--ink2);">${a.n}</div>
+        </div>
+        <div class="lb-stat-group" style="min-width: 65px;">
+          <div class="lb-stat-lbl">AHT</div>
+          <div class="lb-stat-val">
+             <span class="${a.ahtVal > 650 ? 'outlier-aht' : ''}" style="color:${a.ahtVal <= 650 ? 'var(--green)' : ''}">${s2mm(a.ahtVal)}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('spacedArenaCont').innerHTML = `<div class="lb-clean-container">${agents.map((a,i) => buildCleanRow(a, i)).join('')}</div>`;
+}
+
+/* ─────────────────────────────────────────────
+   RENDER ALL AGENTS
+───────────────────────────────────────────── */
+function renderAgents(){
+  const rows=filt(); const map={};
+  rows.forEach(r=>{if(!map[r.agent]) map[r.agent]={name:r.name, apm:r.apm, cls:r.cls, rows:[]}; map[r.agent].rows.push(r);});
+  const agents=Object.entries(map).map(([,d])=>{
+    const h=d.rows.filter(r=>r.hd); const n=h.length;
+    const tk=h.reduce((a,r)=>a+r.tk,0), hl=h.reduce((a,r)=>a+r.hl,0), aw=h.reduce((a,r)=>a+r.aw,0);
+    return{name:d.name, apm:d.apm, cls:d.cls, n, aht:n?(tk+hl+aw)/n:0, talk:n?tk/n:0, acw:n?aw/n:0, hold:n?hl/n:0};
+  }).sort((a,b)=>b.n-a.n);
+
+  document.getElementById('agentBody').innerHTML=agents.map((a,i)=>`<tr>
+    <td style="color:var(--muted); font-weight:700; width:40px;">${i+1}</td>
+    <td style="text-align:left; font-weight:700; color:var(--ink);">${a.name}</td>
+    <td style="text-align:left; color:var(--muted); font-weight:500;">${a.apm}</td>
+    <td><span class="skill-pill">${a.cls}</span></td>
+    <td style="font-weight:600;">${a.n}</td>
+    <td class="mono" style="font-weight:700;"><span class="${a.aht > 650 ? 'outlier-aht' : ''}" style="color:${a.aht <= 650 ? 'var(--green)' : 'inherit'}">${s2mm(a.aht)}</span></td>
+    <td class="mono">${s2mm(a.talk)}</td>
+    <td class="mono">${s2mm(a.acw)}</td>
+    <td class="mono">${s2mm(a.hold)}</td>
+  </tr>`).join('');
+}
+
+/* ─────────────────────────────────────────────
+   RENDER ROSTER
+───────────────────────────────────────────── */
+function renderRoster(){
+  const q=(document.getElementById('rSearch').value||'').toLowerCase();
+  const inData=new Set(RAW.map(r=>r.agent).filter(Boolean));
+  const entries=[];
+  ROSTER.forEach((v,e)=>entries.push({email:e, ...v, unmapped:false}));
+  inData.forEach(e=>{if(!ROSTER.has(e)&&e&&e!=='[none]')
+    entries.push({email:e, eid:'—', name:'—', apm:'Unassigned', role:'—', status:'—', batch:'—', unmapped:true});});
+  const f=entries.filter(r=>!q||r.email.includes(q)||r.name.toLowerCase().includes(q)||r.apm.toLowerCase().includes(q)||r.batch.toLowerCase().includes(q));
+  const mp=f.filter(r=>!r.unmapped).length, um=f.filter(r=>r.unmapped).length;
+  const rb=document.getElementById('rosterBadge');
+  rb.textContent=`ROSTER: ${mp} Mapped`; rb.className='badge '+(um>0?'badge-amber':'badge-green');
+  document.getElementById('rosterBody').innerHTML=f.map(r=>`<tr>
+    <td>${r.unmapped?'<span class="pill pill-warn">Unmapped</span>':'<span class="pill pill-ok">Active</span>'}</td>
+    <td style="font-family:monospace; font-size:.78rem; color:var(--muted);">${r.eid}</td>
+    <td style="font-weight:700; text-align:left;">${r.name}</td>
+    <td style="text-align:left; font-weight:500;">${r.apm}</td>
+    <td>${r.batch}</td>
+    <td style="color:var(--muted);">${r.role}</td>
+    <td style="font-family:monospace; font-size:.75rem; text-align:left;">${r.email}</td>
+  </tr>`).join('');
+}
+
+/* ─────────────────────────────────────────────
+   KPIs & FILTERS
+───────────────────────────────────────────── */
+function renderKPIs(){
+  const r=filt();
+  const offered=r.filter(x=>x.ib||x.ab).length;
+  const handled=r.filter(x=>x.hd).length;
+  const ab=r.filter(x=>x.ab).length;
+  const v=aht(r,'AHT');
+  document.getElementById('kOffered').textContent=offered.toLocaleString();
+  document.getElementById('kHandled').textContent=handled.toLocaleString();
+  document.getElementById('kAband').textContent=ab.toLocaleString();
+  document.getElementById('kAbanPct').textContent=offered?(ab/offered*100).toFixed(1)+'%':'—';
+  
+  const ahtEl = document.getElementById('kAHT');
+  ahtEl.textContent=v!==null?s2mm(v):'—';
+  ahtEl.style.color = v!==null ? getAhtColor(v) : 'var(--primary)';
+}
+function populateFilters(rebuildTeams = true){
+  const opt=(id,vals,lbl)=>{const cur=document.getElementById(id).value;
+    document.getElementById(id).innerHTML=`<option value="">All ${lbl}</option>`+vals.map(v=>`<option${v===cur?' selected':''}>${v}</option>`).join('');};
+  if(rebuildTeams) populateTeamsList();
+  opt('fCamp',[...new Set(RAW.map(r=>r.campaign).filter(Boolean))].sort(),'Campaigns');
+  opt('fCls',[...new Set(RAW.map(r=>r.cls).filter(Boolean))].sort(),'Classifications');
+}
+function renderAll(rebuildTeams = true){populateFilters(rebuildTeams); renderKPIs(); renderHeatmap(); renderTeam(); renderLeaderboard(); renderAgents(); renderRoster();}
+
+/* ─────────────────────────────────────────────
+   DATA LOADERS
+───────────────────────────────────────────── */
+function processCSV(data){
+  RAW=enrich(data.filter(r=>Object.keys(r).length>2));
+  const dates=[...new Set(RAW.map(r=>r._r['DATE']||r._r['Date']).filter(Boolean))].sort();
+  document.getElementById('dateRange').textContent=dates.length===1?`📅 ${dates[0]}`:`📅 ${dates[0]} – ${dates[dates.length-1]}`;
+  setStatus(`Synced: ${RAW.length.toLocaleString()} logs`, true);
+  renderAll(true);
+}
+function processXLSX(buf){
+  const wb=XLSX.read(buf,{type:'array'});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  const n=parseRoster(rows);
+  setStatus(`Roster loaded (${n})`);
+  if(RAW.length){RAW=enrich(RAW.map(r=>r._r)); renderAll(true);}
+  else renderRoster();
+}
+
+/* ─────────────────────────────────────────────
+   SYNC TRIGGER
+───────────────────────────────────────────── */
+async function syncAll(){ld(true,'Syncing roster…'); await doRoster(); ld(true,'Syncing call logs…'); await doLogs(); ld(false);}
+async function syncLogs(){ld(true,'Fetching call logs…'); await doLogs(); ld(false);}
+async function syncRosterDB(){ld(true,'Fetching roster…'); await doRoster(); ld(false);}
+
+function doLogs(){return new Promise(res=>{
+  setStatus('⏳ Fetching logs…');
+  Papa.parse(LOGS_URL,{download:true, header:true, skipEmptyLines:true,
+    complete:d=>{processCSV(d.data); res();}, error:()=>{setStatus('❌ Logs fetch failed'); res();}});
+});}
+async function doRoster(){
+  try{
+    const r=await fetch(ROSTER_URL); if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    processXLSX(await r.arrayBuffer());
+  }catch(e){setStatus(`⚠️ Roster fallback required`);}
+}
+
+/* ─────────────────────────────────────────────
+   LOCAL UPLOAD
+───────────────────────────────────────────── */
+function handleCSV(e){const f=e.target.files[0]; if(!f) return; ld(true,`Parsing ${f.name}…`);
+  Papa.parse(f,{header:true, skipEmptyLines:true, complete:d=>{ld(false); processCSV(d.data);}, error:()=>{ld(false); setStatus('❌ Parse failed');}}); e.target.value='';}
+function handleXLS(e){const f=e.target.files[0]; if(!f) return; ld(true,`Loading ${f.name}…`);
+  const rd=new FileReader(); rd.onload=ev=>{ld(false); processXLSX(ev.target.result);}; rd.onerror=()=>{ld(false); setStatus('❌ Read failed');}; rd.readAsArrayBuffer(f); e.target.value='';}
+
+function exportRoster(){
+  const inData=new Set(RAW.map(r=>r.agent).filter(Boolean));
+  const rows=['Email,eID,Name,APM,Batch,Role,Status,Mapped'];
+  inData.forEach(e=>{const r=lookup(e); rows.push([e,r.eid,r.name,r.apm,r.batch,r.role,r.status,ROSTER.has(e)?'Yes':'No'].map(v=>`"${v}"`).join(','));});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'})); a.download='Roster_Export.csv'; a.click();
+}
+
+/* ─────────────────────────────────────────────
+   UI LISTENERS
+───────────────────────────────────────────── */
+function trigUp(id){document.getElementById(id).click();}
+function setStatus(msg,live=false){
+  document.getElementById('statusMsg').textContent=msg;
+  document.getElementById('syncDot').className='dot'+(live?' live':'');
+}
+function ld(on,msg='Loading…'){document.getElementById('loader').classList.toggle('on',on); document.getElementById('ldMsg').textContent=msg;}
+
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); document.getElementById(`panel-${t.dataset.tab}`).classList.add('on');
+}));
+
+document.querySelectorAll('.m-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.m-btn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); METRIC=b.dataset.m; if(RAW.length) renderHeatmap();
+}));
+
+['fCamp','fCls'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{if(RAW.length) renderAll(false);}));
+document.getElementById('csvIn').addEventListener('change',handleCSV);
+document.getElementById('xlsIn').addEventListener('change',handleXLS);
+</script>
+</body>
+</html>
