@@ -7,11 +7,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* ── REN HAZUKI THEME TOKENS & RESET ── */
+/* ──THEME TOKENS & RESET ── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Ren Hazuki Inspired Palette - Elegant, Disciplined, Professional */
+  /* Color Palette - Elegant, Disciplined, Professional */
   --primary: #1C2A4A;        /* Deep Navy */
   --primary-light: #283C6A;  /* Lighter Navy */
   --surface: #FFFFFF;        /* Pure White */
@@ -93,8 +93,8 @@ select.flt:focus { border-color: var(--primary); }
 
 /* ── MAIN CONTENT & TABS ── */
 .content { padding: 24px 28px 80px; max-width: 1800px; margin: 0 auto; }
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-.tab { padding: 12px 20px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; overflow-x: auto; }
+.tab { padding: 12px 20px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; }
 .tab:hover { color: var(--ink); }
 .tab.on { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
 .panel { display: none; animation: fadeIn .2s ease-in-out; }
@@ -118,6 +118,26 @@ td.dim { color: #94A3B8; background: #FCFCFD; }
 .row-total td { background: #F8FAFC; color: var(--primary); font-weight: 700; font-family: ui-monospace, monospace; }
 tr:hover td, tr:hover th { background: #F8FAFC; }
 
+/* ── TRENDS & INTERVAL SELECTOR PANEL ── */
+.trends-container { display: flex; flex-direction: column; gap: 20px; }
+.iv-picker-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow); }
+.iv-picker-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+.iv-picker-title { font-weight: 700; font-size: .95rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+.iv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 8px; max-height: 160px; overflow-y: auto; padding: 4px; border-top: 1px solid var(--border); padding-top: 12px; }
+.iv-cb-lbl { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-family: ui-monospace, monospace; background: var(--bg); padding: 6px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer; user-select: none; transition: all .15s; }
+.iv-cb-lbl:hover { border-color: var(--muted); }
+.iv-cb-lbl input { accent-color: var(--primary); cursor: pointer; }
+
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); position: relative; }
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .78rem; font-weight: 600; }
+.legend-item { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.legend-color { width: 12px; height: 12px; border-radius: 3px; }
+.legend-target { border-bottom: 2px dashed var(--red); padding-bottom: 2px; color: var(--red); }
+.canvas-wrap { position: relative; width: 100%; height: 380px; }
+canvas#trendCanvas { width: 100%; height: 100%; display: block; }
+#chartTooltip { position: absolute; display: none; background: var(--ink); color: #fff; padding: 8px 12px; border-radius: var(--radius-sm); font-size: .75rem; pointer-events: none; box-shadow: var(--shadow-md); z-index: 10; transition: top 0.05s, left 0.05s; }
+
 /* ── COLLAPSIBLE AUTO-FIT TEAM MASONRY ── */
 .panel-toolbar { display: flex; justify-content: flex-end; margin-bottom: 16px; gap: 8px; }
 .auto-fit-teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; align-items: start; }
@@ -132,7 +152,6 @@ tr:hover td, tr:hover th { background: #F8FAFC; }
 .tl-aht-box { text-align: right; }
 .tl-aht-lbl { font-size: .62rem; font-weight: 700; text-transform: uppercase; color: var(--muted); }
 .tl-aht-val { font-size: 1.15rem; font-weight: 800; font-family: ui-monospace, monospace; line-height: 1.1; margin-top: 2px; }
-/* STRICT AUTO-FIT TABLE LOGIC */
 .tl-body { display: none; }
 .tl-card.open .tl-body { display: block; animation: fadeIn 0.2s ease; }
 .tl-table-wrap { width: 100%; }
@@ -260,6 +279,7 @@ tr:hover td, tr:hover th { background: #F8FAFC; }
 <div class="content">
   <div class="tabs">
     <button class="tab on" data-tab="heatmap">📊 Interval Heatmap</button>
+    <button class="tab" data-tab="trends">📈 Interval Trends</button>
     <button class="tab" data-tab="team">🏢 Team AHT</button>
     <button class="tab" data-tab="leaderboard">📋 Floor Leaderboard</button>
     <button class="tab" data-tab="agents">👤 All Agents</button>
@@ -272,6 +292,48 @@ tr:hover td, tr:hover th { background: #F8FAFC; }
       <table><thead id="hmHead"><tr><th>Interval</th><th colspan="8" style="font-weight:400;color:#94a3b8;">— sync data to populate —</th></tr></thead>
       <tbody id="hmBody"></tbody></table>
     </div></div>
+  </div>
+
+  <!-- TRENDS & MULTI-INTERVAL PANEL -->
+  <div class="panel" id="panel-trends">
+    <div class="trends-container">
+      <div class="iv-picker-card">
+        <div class="iv-picker-head">
+          <div class="iv-picker-title">
+            <span>⏱️ Filter Intervals to Plot</span>
+            <span style="font-size:.75rem; font-weight:500; color:var(--muted)" id="selectedIvCount">(All Selected)</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-ghost" style="padding:4px 10px; font-size:.75rem;" onclick="setAllIntervals(true)">Select All</button>
+            <button class="btn btn-ghost" style="padding:4px 10px; font-size:.75rem;" onclick="setAllIntervals(false)">Clear All</button>
+          </div>
+        </div>
+        <div class="iv-grid" id="ivChecklistCont"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div style="font-weight:700; font-size:1.05rem; color:var(--primary)">Team Lead Performance Trajectory</div>
+          <div class="chart-legend" id="chartLegendCont"></div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="trendCanvas"></canvas>
+          <div id="chartTooltip"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="padding:14px 18px; background:#F8FAFC; border-bottom:1px solid var(--border); font-weight:700; color:var(--primary)">
+          Tabular Interval Breakdown (Seconds)
+        </div>
+        <div class="scroll-box">
+          <table id="trendTable">
+            <thead id="trendTableHead"></thead>
+            <tbody id="trendTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- COLLAPSIBLE AUTO-FIT TEAM MASONRY -->
@@ -333,7 +395,7 @@ tr:hover td, tr:hover th { background: #F8FAFC; }
 /* ─────────────────────────────────────────────
    CONFIG (CORS-Bypass Fixed for Dropbox Roster)
 ───────────────────────────────────────────── */
-const LOGS_URL   = "https://dl.dropboxusercontent.com/scl/fi/zi1qj2fyb7tidr2cxupkz/Tableau-Call-Log-Report-v4-eClerx-Skills-Combined-Hourly.csv?rlkey=bzpk2fg47qjv0wpid3u6dgrip&st=z5jg33b7&raw=1";
+const LOGS_URL   = "https://dl.dropboxusercontent.com/scl/fi/zi1qj2fyb7tidr2cxupkz/Tableau-Call-Log-Report-v4-eClerx-Skills-Combined-Hourly.csv?rlkey=bzpk2fg47qjv0wpid3u6dgrip&st=tj7ga6pt&raw=1";
 const ROSTER_URL = "https://dl.dropboxusercontent.com/scl/fi/yj6w22v8ot8ij2w0c9et5/Agent_Mapping2.xlsx?rlkey=rn1gx2ginuhfebnz33h3ogwem&st=lb6hcqyy&raw=1";
 const RC = {eid:0, name:1, apm:2, role:3, status:4, email:5, batch:6};
 
@@ -342,10 +404,14 @@ const RC = {eid:0, name:1, apm:2, role:3, status:4, email:5, batch:6};
 ───────────────────────────────────────────── */
 let RAW=[], ROSTER=new Map(), METRIC='AHT';
 let SELECTED_TEAMS = new Set();
+let SELECTED_INTERVALS = new Set();
 let GLOBAL_AGENTS_VIEW = false;
 let ARENA_SORT = { metric: 'aht', asc: true };
 const IVLS=Array.from({length:48},(_,i)=>`${String(Math.floor(i/2)).padStart(2,'0')}:${i%2?'30':'00'}`);
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+/* Ren Hazuki Line Chart Palette */
+const TEAM_COLORS = ['#1C2A4A', '#B49A45', '#059669', '#2563EB', '#D97706', '#7C3AED', '#DB2777', '#0D9488', '#4F46E5', '#EA580C'];
 
 /* ─────────────────────────────────────────────
    UTILS
@@ -357,10 +423,8 @@ const dowOf=s=>{try{return new Date(s.replace(/\//g,'-')).getDay();}catch{return
 const aKey=r=>(r['AGENT']||r['Agent']||'').toLowerCase().trim();
 const lookup=e=>ROSTER.get(e)||{eid:'—',name:e.split('@')[0].replace('.',' ').replace(/\b\w/g,c=>c.toUpperCase()),apm:'Unassigned',role:'—',status:'—',batch:'—'};
 
-/* STRICT RED/GREEN HIGHLIGHT FOR AHT > 650 */
 const getAhtColor = (val) => val > 650 ? 'var(--red)' : 'var(--green)';
 
-/* AGGRESSIVE FUZZY CSV SKILL CLASSIFICATION */
 function getSkillClassification(rowObj){
   let sVal = '';
   const possibleHeaders = ['skill', 'Skill', 'skills', 'Skills', 'SLBOS.Classification', 'AGENT GROUP', 'Queue Name', 'Group'];
@@ -398,7 +462,7 @@ function parseRoster(rows){
 }
 
 /* ─────────────────────────────────────────────
-   ENRICH (Fuzzy CSV Column Handling)
+   ENRICH
 ───────────────────────────────────────────── */
 function enrich(data){
   return data.map(row=>{
@@ -419,18 +483,12 @@ function enrich(data){
   });
 }
 
-/* ─────────────────────────────────────────────
-   AHT CALC
-───────────────────────────────────────────── */
 function aht(rows,m){
   const h=rows.filter(r=>r.hd); if(!h.length) return null;
   const n=h.length, tk=h.reduce((a,r)=>a+r.tk,0), hl=h.reduce((a,r)=>a+r.hl,0), aw=h.reduce((a,r)=>a+r.aw,0);
   return m==='Talk'?tk/n:m==='Hold'?hl/n:m==='ACW'?aw/n:(tk+hl+aw)/n;
 }
 
-/* ─────────────────────────────────────────────
-   FILTERED
-───────────────────────────────────────────── */
 function filt(){
   const fc=document.getElementById('fCamp').value;
   const fl=document.getElementById('fCls').value;
@@ -511,6 +569,221 @@ function updateMSLabel(){
   if(SELECTED_TEAMS.size === total || SELECTED_TEAMS.size === 0) lbl.textContent = "All Teams";
   else lbl.textContent = `${SELECTED_TEAMS.size} Teams Selected`;
 }
+
+/* ─────────────────────────────────────────────
+   TRENDS PANEL (Interval Picker & Canvas Chart)
+───────────────────────────────────────────── */
+let activeChartHitboxes = [];
+
+function populateIntervalPicker(){
+  if(SELECTED_INTERVALS.size === 0) IVLS.forEach(iv => SELECTED_INTERVALS.add(iv));
+  
+  const cont = document.getElementById('ivChecklistCont');
+  cont.innerHTML = IVLS.map(iv => `
+    <label class="iv-cb-lbl">
+      <input type="checkbox" class="iv-cb" value="${iv}" ${SELECTED_INTERVALS.has(iv)?'checked':''} onchange="updateIvSelection(this)">
+      <span>${iv}</span>
+    </label>
+  `).join('');
+  updateIvCountLabel();
+}
+
+function updateIvSelection(cb){
+  if(cb.checked) SELECTED_INTERVALS.add(cb.value);
+  else SELECTED_INTERVALS.delete(cb.value);
+  updateIvCountLabel();
+  renderTrends();
+}
+
+function setAllIntervals(val){
+  const cbs = document.querySelectorAll('.iv-cb');
+  SELECTED_INTERVALS.clear();
+  cbs.forEach(cb => {
+    cb.checked = val;
+    if(val) SELECTED_INTERVALS.add(cb.value);
+  });
+  updateIvCountLabel();
+  renderTrends();
+}
+
+function updateIvCountLabel(){
+  const lbl = document.getElementById('selectedIvCount');
+  if(SELECTED_INTERVALS.size === IVLS.length) lbl.textContent = "(All Selected)";
+  else lbl.textContent = `(${SELECTED_INTERVALS.size} Selected)`;
+}
+
+function renderTrends(){
+  const rows = filt();
+  const activeIntervals = IVLS.filter(iv => SELECTED_INTERVALS.has(iv));
+  
+  const teamSet = new Set(rows.map(r => r.apm || 'Unassigned'));
+  const teams = [...teamSet].sort();
+  
+  const dataMap = {};
+  teams.forEach(t => { dataMap[t] = {}; activeIntervals.forEach(iv => dataMap[t][iv] = []); });
+  
+  rows.forEach(r => {
+    const t = r.apm || 'Unassigned';
+    if(SELECTED_INTERVALS.has(r.iv) && dataMap[t]) dataMap[t][r.iv].push(r);
+  });
+
+  const seriesData = teams.map((t, i) => {
+    return {
+      team: t,
+      color: TEAM_COLORS[i % TEAM_COLORS.length],
+      points: activeIntervals.map(iv => aht(dataMap[t][iv], METRIC))
+    };
+  });
+
+  /* Build Legend */
+  document.getElementById('chartLegendCont').innerHTML = 
+    `<span class="legend-target">-- Target (10:50)</span>` +
+    seriesData.map(s => `
+      <div class="legend-item" onclick="toggleTeamFocus('${s.team}')">
+        <div class="legend-color" style="background:${s.color}"></div>
+        <span style="color:var(--ink)">${s.team}</span>
+      </div>
+    `).join('');
+
+  /* Draw Chart */
+  drawTrendCanvas(activeIntervals, seriesData);
+  /* Draw Breakdown Table */
+  renderTrendTable(activeIntervals, seriesData);
+}
+
+function drawTrendCanvas(xLabels, series){
+  const canvas = document.getElementById('trendCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  
+  const W = rect.width, H = rect.height;
+  const padT = 30, padB = 40, padL = 55, padR = 20;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  ctx.clearRect(0, 0, W, H);
+  activeChartHitboxes = [];
+
+  if(!xLabels.length){
+    ctx.fillStyle = '#94A3B8'; ctx.font = '500 14px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('Select at least one interval above to view trends', W/2, H/2);
+    return;
+  }
+
+  /* Determine Max Y */
+  let maxVal = 700; // default cap above target
+  series.forEach(s => s.points.forEach(p => { if(p && p > maxVal) maxVal = p + 60; }));
+  
+  const ySteps = 5;
+  const stepVal = Math.ceil(maxVal / ySteps / 60) * 60; // Snap grid to exact minutes
+  maxVal = stepVal * ySteps;
+
+  const getX = (idx) => padL + (xLabels.length === 1 ? plotW/2 : (idx / (xLabels.length - 1)) * plotW);
+  const getY = (val) => padT + plotH - (val / maxVal) * plotH;
+
+  /* Draw Grid Lines & Y Labels */
+  ctx.lineWidth = 1; ctx.strokeStyle = '#F1F5F9'; ctx.fillStyle = '#64748B';
+  ctx.font = '600 11px Inter'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+
+  for(let i = 0; i <= ySteps; i++){
+    const v = stepVal * i;
+    const y = getY(v);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+    ctx.fillText(s2mm(v), padL - 10, y);
+  }
+
+  /* Draw Target Line (650s = 10:50) */
+  const tgtY = getY(650);
+  ctx.save(); ctx.beginPath(); ctx.setLineDash([6, 6]); ctx.strokeStyle = '#BE123C'; ctx.lineWidth = 1.5;
+  ctx.moveTo(padL, tgtY); ctx.lineTo(W - padR, tgtY); ctx.stroke(); ctx.restore();
+
+  /* Draw X Labels */
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const skipStep = Math.ceil(xLabels.length / 15); // Prevent overlap if too many checked
+  xLabels.forEach((lbl, i) => {
+    if(i % skipStep === 0 || i === xLabels.length - 1){
+      ctx.fillText(lbl, getX(i), padT + plotH + 10);
+    }
+  });
+
+  /* Draw Series Lines */
+  series.forEach(s => {
+    ctx.strokeStyle = s.color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    let started = false;
+    s.points.forEach((val, i) => {
+      if(val !== null){
+        const x = getX(i), y = getY(val);
+        if(!started){ ctx.moveTo(x, y); started = true; }
+        else ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+
+    /* Draw Points & Register Hover Hitboxes */
+    ctx.fillStyle = '#FFFFFF';
+    s.points.forEach((val, i) => {
+      if(val !== null){
+        const x = getX(i), y = getY(val);
+        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        activeChartHitboxes.push({ x, y, val, team: s.team, iv: xLabels[i] });
+      }
+    });
+  });
+}
+
+function renderTrendTable(xLabels, series){
+  document.getElementById('trendTableHead').innerHTML = 
+    `<tr><th style="text-align:left">Team</th>` + xLabels.map(lbl => `<th>${lbl}</th>`).join('') + `</tr>`;
+
+  document.getElementById('trendTableBody').innerHTML = series.map(s => `
+    <tr>
+      <td style="text-align:left; font-weight:700; color:${s.color}; border-left:4px solid ${s.color}">${s.team}</td>
+      ${s.points.map(p => `
+        <td class="mono" style="color:${p && p > 650 ? 'var(--red)' : 'inherit'}; font-weight:${p && p > 650 ? '700':'500'}">
+          ${p !== null ? Math.round(p) : '<span style="color:#CBD5E1">—</span>'}
+        </td>
+      `).join('')}
+    </tr>
+  `).join('');
+}
+
+/* Tooltip Hover Listener */
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('trendCanvas');
+  const tt = document.getElementById('chartTooltip');
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    let match = null;
+    for(let pt of activeChartHitboxes){
+      const dist = Math.hypot(mx - pt.x, my - pt.y);
+      if(dist <= 12){ match = pt; break; }
+    }
+
+    if(match){
+      tt.style.display = 'block';
+      tt.innerHTML = `<strong>${match.team}</strong> (${match.iv})<br><span style="color:#F1F5F9">${s2mm(match.val)}</span>`;
+      tt.style.left = `${mx + 15}px`;
+      tt.style.top = `${my - 30}px`;
+      canvas.style.cursor = 'pointer';
+    } else {
+      tt.style.display = 'none';
+      canvas.style.cursor = 'default';
+    }
+  });
+
+  canvas.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+});
 
 /* ─────────────────────────────────────────────
    RENDER HEATMAP
@@ -623,7 +896,7 @@ function toggleAllAccordions(expand) {
 }
 
 /* ─────────────────────────────────────────────
-   CLEAN LEADERBOARD & SORTING
+   CLEAN LEADERBOARD
 ───────────────────────────────────────────── */
 function setArenaSort(metric){
   if(ARENA_SORT.metric === metric) ARENA_SORT.asc = !ARENA_SORT.asc;
@@ -753,14 +1026,21 @@ function renderKPIs(){
 function populateFilters(rebuildTeams = true){
   const opt=(id,vals,lbl)=>{const cur=document.getElementById(id).value;
     document.getElementById(id).innerHTML=`<option value="">All ${lbl}</option>`+vals.map(v=>`<option${v===cur?' selected':''}>${v}</option>`).join('');};
-  if(rebuildTeams) populateTeamsList();
+  if(rebuildTeams){ populateTeamsList(); populateIntervalPicker(); }
   opt('fCamp',[...new Set(RAW.map(r=>r.campaign).filter(Boolean))].sort(),'Campaigns');
   opt('fCls',[...new Set(RAW.map(r=>r.cls).filter(Boolean))].sort(),'Classifications');
 }
-function renderAll(rebuildTeams = true){populateFilters(rebuildTeams); renderKPIs(); renderHeatmap(); renderTeam(); renderLeaderboard(); renderAgents(); renderRoster();}
+function renderAll(rebuildTeams = true){
+  populateFilters(rebuildTeams); renderKPIs(); renderHeatmap(); 
+  renderTrends(); renderTeam(); renderLeaderboard(); 
+  renderAgents(); renderRoster();
+}
+
+/* Window Resize Redraw Trigger for Canvas */
+window.addEventListener('resize', () => { if(RAW.length && document.getElementById('panel-trends').classList.contains('on')) renderTrends(); });
 
 /* ─────────────────────────────────────────────
-   DATA LOADERS
+   DATA LOADERS & SYNCS
 ───────────────────────────────────────────── */
 function processCSV(data){
   RAW=enrich(data.filter(r=>Object.keys(r).length>2));
@@ -779,9 +1059,6 @@ function processXLSX(buf){
   else renderRoster();
 }
 
-/* ─────────────────────────────────────────────
-   SYNC TRIGGER
-───────────────────────────────────────────── */
 async function syncAll(){ld(true,'Syncing roster…'); await doRoster(); ld(true,'Syncing call logs…'); await doLogs(); ld(false);}
 async function syncLogs(){ld(true,'Fetching call logs…'); await doLogs(); ld(false);}
 async function syncRosterDB(){ld(true,'Fetching roster…'); await doRoster(); ld(false);}
@@ -798,9 +1075,6 @@ async function doRoster(){
   }catch(e){setStatus(`⚠️ Roster fallback required`);}
 }
 
-/* ─────────────────────────────────────────────
-   LOCAL UPLOAD
-───────────────────────────────────────────── */
 function handleCSV(e){const f=e.target.files[0]; if(!f) return; ld(true,`Parsing ${f.name}…`);
   Papa.parse(f,{header:true, skipEmptyLines:true, complete:d=>{ld(false); processCSV(d.data);}, error:()=>{ld(false); setStatus('❌ Parse failed');}}); e.target.value='';}
 function handleXLS(e){const f=e.target.files[0]; if(!f) return; ld(true,`Loading ${f.name}…`);
@@ -813,9 +1087,6 @@ function exportRoster(){
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'})); a.download='Roster_Export.csv'; a.click();
 }
 
-/* ─────────────────────────────────────────────
-   UI LISTENERS
-───────────────────────────────────────────── */
 function trigUp(id){document.getElementById(id).click();}
 function setStatus(msg,live=false){
   document.getElementById('statusMsg').textContent=msg;
@@ -827,11 +1098,13 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
   t.classList.add('on'); document.getElementById(`panel-${t.dataset.tab}`).classList.add('on');
+  if(t.dataset.tab === 'trends' && RAW.length) renderTrends();
 }));
 
 document.querySelectorAll('.m-btn').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.m-btn').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); METRIC=b.dataset.m; if(RAW.length) renderHeatmap();
+  b.classList.add('on'); METRIC=b.dataset.m; 
+  if(RAW.length){ renderHeatmap(); renderTrends(); }
 }));
 
 ['fCamp','fCls'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{if(RAW.length) renderAll(false);}));
