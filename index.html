@@ -11,26 +11,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Color Palette - Elegant, Disciplined, Professional */
-  --primary: #1C2A4A;        /* Deep Navy */
-  --primary-light: #283C6A;  /* Lighter Navy */
+  /* Color Palette - Steel / Charcoal / Brass — professional, restrained */
+  --primary: #1B2733;        /* Charcoal Steel */
+  --primary-light: #2E3F4F;  /* Lighter Steel */
   --surface: #FFFFFF;        /* Pure White */
-  --bg: #F4F6F9;             /* Soft Cool Gray */
-  --ink: #0F172A;            /* Slate 900 */
-  --ink2: #334155;           /* Slate 700 */
-  --muted: #64748B;          /* Slate 500 */
-  --border: #E2E8F0;         /* Slate 200 */
-  --gold: #B49A45;           /* Refined Brass/Gold */
-  
+  --bg: #F2F4F6;             /* Cool Gray */
+  --ink: #111827;            /* Near Black */
+  --ink2: #374151;           /* Gray 700 */
+  --muted: #6B7280;          /* Gray 500 */
+  --border: #E2E5E9;         /* Gray 200 */
+  --gold: #A4894A;           /* Brass Accent */
+
   /* Status Colors */
-  --green: #059669;          /* Emerald */
-  --red: #BE123C;            /* Crimson */
-  --red-bg: #FFE4E6;         /* Rose bg for outliers */
-  
-  --radius: 8px; 
+  --green: #1E7A4C;          /* Forest Green */
+  --red: #A31E2E;            /* Deep Crimson */
+  --red-bg: #FBEAEA;         /* Subtle Rose bg for outliers */
+
+  --radius: 8px;
   --radius-sm: 4px;
-  --shadow: 0 1px 2px 0 rgba(28, 42, 74, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(28, 42, 74, 0.1), 0 2px 4px -1px rgba(28, 42, 74, 0.06);
+  --shadow: 0 1px 2px 0 rgba(17, 24, 39, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(17, 24, 39, 0.1), 0 2px 4px -1px rgba(17, 24, 39, 0.06);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,8 +39,8 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color
 /* ── TOPBAR ── */
 .topbar { background: var(--primary); color: #fff; padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-md); }
 .topbar-brand { display: flex; align-items: center; gap: 12px; }
-.topbar-brand svg { width: 24px; height: 24px; color: var(--gold); }
-.topbar-brand .name { font-weight: 700; font-size: 1.15rem; letter-spacing: -.01em; }
+.topbar-brand svg { width: 22px; height: 22px; color: var(--gold); }
+.topbar-brand .name { font-weight: 700; font-size: 1.1rem; letter-spacing: -.01em; }
 .topbar-brand .sep { color: #475569; }
 .topbar-brand .sub { font-size: .85rem; color: #CBD5E1; font-weight: 500; }
 .topbar-right { display: flex; align-items: center; gap: 14px; }
@@ -49,8 +49,8 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color
 .dot.live { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,0.6); animation: pulse 2s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
 .badge { font-size: .68rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; letter-spacing: .05em; text-transform: uppercase; }
-.badge-green { background: #D1FAE5; color: #065f46; }
-.badge-amber { background: #FEF3C7; color: #92400E; }
+.badge-green { background: #D9EFE2; color: #115C34; }
+.badge-amber { background: #F4E6C9; color: #7A5A12; }
 .badge-muted { background: rgba(255,255,255,0.1); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.2); }
 
 /* ── TOOLBAR ── */
@@ -117,6 +117,7 @@ td.dim { color: #94A3B8; background: #FCFCFD; }
 .row-total th { background: var(--primary-light); color: #fff; border-right: 1px solid rgba(255,255,255,0.2); }
 .row-total td { background: #F8FAFC; color: var(--primary); font-weight: 700; font-family: ui-monospace, monospace; }
 tr:hover td, tr:hover th { background: #F8FAFC; }
+#agentBody td:nth-child(2) { white-space: normal; word-break: break-word; max-width: 220px; }
 
 /* ── TRENDS & INTERVAL SELECTOR PANEL ── */
 .trends-container { display: flex; flex-direction: column; gap: 20px; }
@@ -140,7 +141,7 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
 
 /* ── COLLAPSIBLE AUTO-FIT TEAM MASONRY ── */
 .panel-toolbar { display: flex; justify-content: flex-end; margin-bottom: 16px; gap: 8px; }
-.auto-fit-teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; align-items: start; }
+.auto-fit-teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; align-items: start; }
 .tl-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s; }
 .tl-card:hover { border-color: var(--primary-light); }
 .tl-header { padding: 14px 18px; background: #F8FAFC; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
@@ -151,17 +152,18 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
 .tl-sub { font-size: .72rem; color: var(--muted); margin-top: 2px; }
 .tl-aht-box { text-align: right; }
 .tl-aht-lbl { font-size: .62rem; font-weight: 700; text-transform: uppercase; color: var(--muted); }
-.tl-aht-val { font-size: 1.15rem; font-weight: 800; font-family: ui-monospace, monospace; line-height: 1.1; margin-top: 2px; }
+.tl-aht-val { font-size: 1.15rem; font-weight: 800; font-family: ui-monospace, monospace; line-height: 1.1; margin-top: 2px; white-space: nowrap; }
 .tl-body { display: none; }
 .tl-card.open .tl-body { display: block; animation: fadeIn 0.2s ease; }
 .tl-table-wrap { width: 100%; }
 .tl-table-wrap table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.8rem; border: none; }
 .tl-table-wrap th { background: var(--surface); color: var(--muted); font-size: .65rem; padding: 8px 12px; border-bottom: 1px solid var(--border); border-right: none; position: static; }
-.tl-table-wrap td { padding: 8px 12px; border-bottom: 1px solid #F1F5F9; border-right: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-table-wrap td { padding: 8px 12px; border-bottom: 1px solid #F1F5F9; border-right: none; white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; line-height: 1.3; }
+.tl-table-wrap td.aht-cell { white-space: nowrap; }
 .tl-table-wrap tr:last-child td { border-bottom: none; }
 .skill-pill { display: inline-block; font-size: .65rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: #F1F5F9; border: 1px solid var(--border); color: var(--ink2); }
 
-/* ── CLEAN PROFESSIONAL LEADERBOARD ── */
+/* ── LEADERBOARD ── */
 .lb-arena-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: var(--surface); padding: 12px 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
 .lb-arena-title { font-weight: 700; font-size: 1.05rem; color: var(--primary); }
 .sort-btn-group { display: flex; gap: 8px; align-items: center; }
@@ -171,31 +173,31 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
 .sort-pill:hover:not(.active) { background: #E2E8F0; }
 
 .lb-clean-container { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-.lb-clean-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.lb-clean-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--border); transition: background 0.15s; gap: 16px; }
 .lb-clean-row:hover { background: #F8FAFC; }
 .lb-clean-row:last-child { border-bottom: none; }
 .lb-rank-clean { width: 32px; font-size: .85rem; font-weight: 700; color: var(--muted); flex-shrink: 0; }
 .lb-info-clean { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-.lb-name-clean { font-weight: 600; font-size: .95rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-name-clean { font-weight: 600; font-size: .95rem; color: var(--ink); white-space: normal; word-break: break-word; line-height: 1.3; }
 .lb-sub-clean { font-size: .75rem; color: var(--muted); margin-top: 2px; }
-.lb-stats-clean { display: flex; gap: 24px; align-items: center; flex-shrink: 0; text-align: right; }
-.lb-stat-group { display: flex; flex-direction: column; align-items: flex-end; }
+.lb-stats-clean { display: flex; gap: 28px; align-items: center; flex-shrink: 0; text-align: right; }
+.lb-stat-group { display: flex; flex-direction: column; align-items: flex-end; min-width: 60px; }
 .lb-stat-lbl { font-size: .65rem; font-weight: 600; text-transform: uppercase; color: var(--muted); }
-.lb-stat-val { font-size: 1.1rem; font-weight: 700; font-family: ui-monospace, monospace; margin-top: 2px; }
+.lb-stat-val { font-size: 1.1rem; font-weight: 700; font-family: ui-monospace, monospace; margin-top: 2px; white-space: nowrap; }
 
 /* ── OUTLIER HIGHLIGHTS ── */
-.outlier-aht { color: var(--red) !important; background: var(--red-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid #FDA4AF; }
+.outlier-aht { color: var(--red) !important; background: var(--red-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid #E8B4B9; white-space: nowrap; }
 
 /* ── ROSTER TOOLBAR ── */
 .roster-toolbar { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; background: #F8FAFC; }
 .roster-toolbar input { flex: 1; padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: .85rem; outline: none; font-family: inherit; }
 .roster-toolbar input:focus { border-color: var(--primary); }
 .pill { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: .68rem; font-weight: 600; }
-.pill-ok { background: #D1FAE5; color: #065F46; }
+.pill-ok { background: #D9EFE2; color: #115C34; }
 .pill-warn { background: var(--red-bg); color: var(--red); }
 
 /* ── LOADER ── */
-#loader { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.8); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; backdrop-filter: blur(4px); }
+#loader { display: none; position: fixed; inset: 0; background: rgba(17,24,39,.8); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; backdrop-filter: blur(4px); }
 #loader.on { display: flex; }
 .spin { width: 42px; height: 42px; border: 4px solid rgba(255,255,255,.2); border-top-color: var(--gold); border-radius: 50%; animation: rot .7s linear infinite; }
 @keyframes rot { to { transform: rotate(360deg); } }
@@ -212,27 +214,26 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-brand">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-    <span class="name">Buckeye Operations Dashboard </span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+    <span class="name">Buckeye Operations Dashboard</span>
     <span class="sep">/</span>
     <span class="sub" id="dateRange">Operations Dashboard</span>
   </div>
   <div class="topbar-right">
     <div class="sync-status"><div class="dot" id="syncDot"></div><span id="statusMsg">Not synced</span></div>
     <span class="badge badge-muted" id="rosterBadge">ROSTER —</span>
-    <span style="font-size:.85rem; font-weight:600; color:#F8FAFC;">Kim 🌸</span>
   </div>
 </div>
 
 <!-- TOOLBAR -->
 <div class="toolbar">
-  <button class="btn btn-primary" onclick="syncAll()">⬇ Sync All</button>
-  <button class="btn" onclick="syncLogs()">📊 Logs</button>
-  <button class="btn" onclick="syncRosterDB()">👥 Roster</button>
+  <button class="btn btn-primary" onclick="syncAll()">Sync All</button>
+  <button class="btn" onclick="syncLogs()">Logs</button>
+  <button class="btn" onclick="syncRosterDB()">Roster</button>
   <div class="tdiv"></div>
-  <button class="btn btn-ghost" onclick="trigUp('csvIn')">📂 Upload Logs</button>
+  <button class="btn btn-ghost" onclick="trigUp('csvIn')">Upload Logs</button>
   <input type="file" id="csvIn" accept=".csv" hidden>
-  <button class="btn btn-ghost" onclick="trigUp('xlsIn')">📋 Upload Roster</button>
+  <button class="btn btn-ghost" onclick="trigUp('xlsIn')">Upload Roster</button>
   <input type="file" id="xlsIn" accept=".xlsx,.csv" hidden>
   <div class="tdiv"></div>
   <div class="metric-grp">
@@ -242,7 +243,7 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
     <button class="m-btn" data-m="Hold">Hold</button>
   </div>
   <div class="tdiv"></div>
-  
+
   <!-- INTERACTIVE MULTISELECT TEAMS WITH GLOBAL VIEW -->
   <div class="ms-wrap" id="msWrap">
     <div class="ms-btn" onclick="toggleMS()">
@@ -252,7 +253,7 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
     <div class="ms-dropdown" id="msDropdown">
       <label class="ms-item ms-global">
         <input type="checkbox" id="globalAgentsToggle" onchange="toggleGlobalAgents(this)">
-        <span>🌐 View Full Agent Roster</span>
+        <span>View Full Agent Roster</span>
       </label>
       <div class="ms-actions" id="teamActionButtons">
         <button class="ms-action-btn" onclick="setAllTeams(true)">Select All</button>
@@ -268,22 +269,22 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
 
 <!-- KPI STRIP -->
 <div class="kpi-strip">
-  <div class="kpi-tile"><div class="kpi-lbl">📞 Offered</div><div class="kpi-val" id="kOffered">—</div></div>
-  <div class="kpi-tile"><div class="kpi-lbl">✅ Handled</div><div class="kpi-val" id="kHandled">—</div></div>
-  <div class="kpi-tile"><div class="kpi-lbl">❌ Abandoned</div><div class="kpi-val" id="kAband">—</div></div>
-  <div class="kpi-tile"><div class="kpi-lbl">📉 Abandon %</div><div class="kpi-val" id="kAbanPct">—</div></div>
-  <div class="kpi-tile"><div class="kpi-lbl">⏱ Overall AHT (Tgt: 10:50)</div><div class="kpi-val" id="kAHT">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">Offered</div><div class="kpi-val" id="kOffered">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">Handled</div><div class="kpi-val" id="kHandled">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">Abandoned</div><div class="kpi-val" id="kAband">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">Abandon %</div><div class="kpi-val" id="kAbanPct">—</div></div>
+  <div class="kpi-tile"><div class="kpi-lbl">Overall AHT (Tgt: 10:50)</div><div class="kpi-val" id="kAHT">—</div></div>
 </div>
 
 <!-- MAIN CONTENT -->
 <div class="content">
   <div class="tabs">
-    <button class="tab on" data-tab="heatmap">📊 Interval Heatmap</button>
-    <button class="tab" data-tab="trends">📈 Interval Trends</button>
-    <button class="tab" data-tab="team">🏢 Team AHT</button>
-    <button class="tab" data-tab="leaderboard">📋 Floor Leaderboard</button>
-    <button class="tab" data-tab="agents">👤 All Agents</button>
-    <button class="tab" data-tab="roster">🗺 Roster Map</button>
+    <button class="tab on" data-tab="heatmap">Interval Heatmap</button>
+    <button class="tab" data-tab="trends">Interval Trends</button>
+    <button class="tab" data-tab="team">Team AHT</button>
+    <button class="tab" data-tab="leaderboard">Floor Leaderboard</button>
+    <button class="tab" data-tab="agents">All Agents</button>
+    <button class="tab" data-tab="roster">Roster</button>
   </div>
 
   <!-- HEATMAP -->
@@ -300,7 +301,7 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
       <div class="iv-picker-card">
         <div class="iv-picker-head">
           <div class="iv-picker-title">
-            <span>⏱️ Filter Intervals to Plot</span>
+            <span>Filter Intervals to Plot</span>
             <span style="font-size:.75rem; font-weight:500; color:var(--muted)" id="selectedIvCount">(All Selected)</span>
           </div>
           <div style="display:flex; gap:6px;">
@@ -347,14 +348,14 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
     </div>
   </div>
 
-  <!-- CLEAN LEADERBOARD -->
+  <!-- LEADERBOARD -->
   <div class="panel" id="panel-leaderboard">
     <div class="lb-arena-controls">
       <div class="lb-arena-title">Floor Performance Ranking</div>
       <div class="sort-btn-group">
         <span class="sort-lbl">Sort By:</span>
-        <button class="sort-pill active" id="sortAHT" onclick="setArenaSort('aht')">⏱️ AHT ▲</button>
-        <button class="sort-pill" id="sortCalls" onclick="setArenaSort('calls')">📞 Calls Handled ▼</button>
+        <button class="sort-pill active" id="sortAHT" onclick="setArenaSort('aht')">AHT ▲</button>
+        <button class="sort-pill" id="sortCalls" onclick="setArenaSort('calls')">Calls Handled ▼</button>
       </div>
     </div>
     <div id="spacedArenaCont"></div>
@@ -365,7 +366,7 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
     <div class="card"><div class="scroll-box">
       <table><thead><tr>
         <th style="text-align:left">#</th>
-        <th style="text-align:left">Agent</th>
+    <th style="text-align:left">Agent</th>
         <th style="text-align:left">APM</th>
         <th>Classification</th>
         <th>Handled</th><th>AHT</th><th>Talk</th><th>ACW</th><th>Hold</th>
@@ -378,7 +379,7 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
     <div class="card">
       <div class="roster-toolbar">
         <input type="text" id="rSearch" placeholder="Search name, email, APM, batch…" oninput="renderRoster()">
-        <button class="btn" onclick="exportRoster()">⬇ Export</button>
+        <button class="btn" onclick="exportRoster()">Export</button>
       </div>
       <div class="scroll-box">
         <table><thead><tr>
@@ -393,7 +394,7 @@ canvas#trendCanvas { width: 100%; height: 100%; display: block; }
 
 <script>
 /* ─────────────────────────────────────────────
-   CONFIG (CORS-Bypass Fixed for Dropbox Roster)
+   CONFIG
 ───────────────────────────────────────────── */
 const LOGS_URL   = "https://dl.dropboxusercontent.com/scl/fi/zi1qj2fyb7tidr2cxupkz/Tableau-Call-Log-Report-v4-eClerx-Skills-Combined-Hourly.csv?rlkey=bzpk2fg47qjv0wpid3u6dgrip&st=tj7ga6pt&raw=1";
 const ROSTER_URL = "https://dl.dropboxusercontent.com/scl/fi/yj6w22v8ot8ij2w0c9et5/Agent_Mapping2.xlsx?rlkey=rn1gx2ginuhfebnz33h3ogwem&st=lb6hcqyy&raw=1";
@@ -410,8 +411,8 @@ let ARENA_SORT = { metric: 'aht', asc: true };
 const IVLS=Array.from({length:48},(_,i)=>`${String(Math.floor(i/2)).padStart(2,'0')}:${i%2?'30':'00'}`);
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-/* Ren Hazuki Line Chart Palette */
-const TEAM_COLORS = ['#1C2A4A', '#B49A45', '#059669', '#2563EB', '#D97706', '#7C3AED', '#DB2777', '#0D9488', '#4F46E5', '#EA580C'];
+/* Team Series Color Palette */
+const TEAM_COLORS = ['#1B2733', '#A4894A', '#1E7A4C', '#2563EB', '#B5651D', '#5B4B8A', '#7A3B4A', '#0E6B66', '#3F4F7A', '#A0522D'];
 
 /* ─────────────────────────────────────────────
    UTILS
@@ -435,7 +436,7 @@ function getSkillClassification(rowObj){
       if(sVal) break;
     }
   }
-  
+
   if(sVal === "MaxxSouth - Universal Backup") return "Combined";
   const techSkills = ["MS Business Tech Support", "MS HSD - Tech Support", "MS Video - Tech Support", "Technical Support"];
   if(techSkills.includes(sVal)) return "Tech";
@@ -475,7 +476,7 @@ function enrich(data){
     const hd=ib&&!ab&&!!(cleanRow['TALK TIME']||cleanRow['Talk Time']);
     const em=aKey(cleanRow);
     const ro=lookup(em);
-    
+
     return{_r:cleanRow, ct, ab, ib, hd, agent:em, name:ro.name, apm:ro.apm, batch:ro.batch, eid:ro.eid, role:ro.role,
       campaign:(cleanRow['CAMPAIGN']||cleanRow['Campaign']||'').trim(), cls: getSkillClassification(cleanRow),
       iv:ivOf(cleanRow['TIMESTAMP']||cleanRow['DATE']||cleanRow['Date']), dow:dowOf(cleanRow['DATE']||cleanRow['Date']),
@@ -511,12 +512,12 @@ window.addEventListener('click', e => {
 function populateTeamsList(){
   const allTeams = [...new Set(RAW.map(r=>r.apm).filter(Boolean))].sort();
   if(SELECTED_TEAMS.size === 0) allTeams.forEach(t => SELECTED_TEAMS.add(t));
-  
+
   const cont = document.getElementById('msItemsList');
   cont.innerHTML = allTeams.map(t => `
     <label class="ms-item">
       <input type="checkbox" class="team-cb" value="${t}" ${SELECTED_TEAMS.has(t)?'checked':''} ${GLOBAL_AGENTS_VIEW?'disabled':''} onchange="updateTeamSelection(this)">
-      <span style="${t==='Unassigned'?'color:#ef4444;font-style:italic;':''} ${GLOBAL_AGENTS_VIEW?'opacity:.4':''}">${t}</span>
+      <span style="${t==='Unassigned'?'color:var(--red);font-style:italic;':''} ${GLOBAL_AGENTS_VIEW?'opacity:.4':''}">${t}</span>
     </label>
   `).join('');
   updateMSLabel();
@@ -528,12 +529,12 @@ function toggleGlobalAgents(cb){
   const btns = document.getElementById('teamActionButtons');
   btns.style.opacity = GLOBAL_AGENTS_VIEW ? '.3' : '1';
   btns.style.pointerEvents = GLOBAL_AGENTS_VIEW ? 'none' : 'auto';
-  
+
   teamCbs.forEach(input => {
     input.disabled = GLOBAL_AGENTS_VIEW;
     input.parentElement.querySelector('span').style.opacity = GLOBAL_AGENTS_VIEW ? '.4' : '1';
   });
-  
+
   updateMSLabel();
   if(RAW.length) renderAll(false);
 }
@@ -560,7 +561,7 @@ function setAllTeams(val){
 function updateMSLabel(){
   const lbl = document.getElementById('msLabel');
   if(GLOBAL_AGENTS_VIEW){
-    lbl.textContent = "🌐 Full Agent List";
+    lbl.textContent = "Full Agent List";
     lbl.style.color = "var(--primary)";
     return;
   }
@@ -577,7 +578,7 @@ let activeChartHitboxes = [];
 
 function populateIntervalPicker(){
   if(SELECTED_INTERVALS.size === 0) IVLS.forEach(iv => SELECTED_INTERVALS.add(iv));
-  
+
   const cont = document.getElementById('ivChecklistCont');
   cont.innerHTML = IVLS.map(iv => `
     <label class="iv-cb-lbl">
@@ -615,13 +616,13 @@ function updateIvCountLabel(){
 function renderTrends(){
   const rows = filt();
   const activeIntervals = IVLS.filter(iv => SELECTED_INTERVALS.has(iv));
-  
+
   const teamSet = new Set(rows.map(r => r.apm || 'Unassigned'));
   const teams = [...teamSet].sort();
-  
+
   const dataMap = {};
   teams.forEach(t => { dataMap[t] = {}; activeIntervals.forEach(iv => dataMap[t][iv] = []); });
-  
+
   rows.forEach(r => {
     const t = r.apm || 'Unassigned';
     if(SELECTED_INTERVALS.has(r.iv) && dataMap[t]) dataMap[t][r.iv].push(r);
@@ -636,7 +637,7 @@ function renderTrends(){
   });
 
   /* Build Legend */
-  document.getElementById('chartLegendCont').innerHTML = 
+  document.getElementById('chartLegendCont').innerHTML =
     `<span class="legend-target">-- Target (10:50)</span>` +
     seriesData.map(s => `
       <div class="legend-item" onclick="toggleTeamFocus('${s.team}')">
@@ -655,12 +656,12 @@ function drawTrendCanvas(xLabels, series){
   const canvas = document.getElementById('trendCanvas');
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.parentElement.getBoundingClientRect();
-  
+
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  
+
   const W = rect.width, H = rect.height;
   const padT = 30, padB = 40, padL = 55, padR = 20;
   const plotW = W - padL - padR;
@@ -678,7 +679,7 @@ function drawTrendCanvas(xLabels, series){
   /* Determine Max Y */
   let maxVal = 700; // default cap above target
   series.forEach(s => s.points.forEach(p => { if(p && p > maxVal) maxVal = p + 60; }));
-  
+
   const ySteps = 5;
   const stepVal = Math.ceil(maxVal / ySteps / 60) * 60; // Snap grid to exact minutes
   maxVal = stepVal * ySteps;
@@ -699,7 +700,7 @@ function drawTrendCanvas(xLabels, series){
 
   /* Draw Target Line (650s = 10:50) */
   const tgtY = getY(650);
-  ctx.save(); ctx.beginPath(); ctx.setLineDash([6, 6]); ctx.strokeStyle = '#BE123C'; ctx.lineWidth = 1.5;
+  ctx.save(); ctx.beginPath(); ctx.setLineDash([6, 6]); ctx.strokeStyle = '#A31E2E'; ctx.lineWidth = 1.5;
   ctx.moveTo(padL, tgtY); ctx.lineTo(W - padR, tgtY); ctx.stroke(); ctx.restore();
 
   /* Draw X Labels */
@@ -739,7 +740,7 @@ function drawTrendCanvas(xLabels, series){
 }
 
 function renderTrendTable(xLabels, series){
-  document.getElementById('trendTableHead').innerHTML = 
+  document.getElementById('trendTableHead').innerHTML =
     `<tr><th style="text-align:left">Team</th>` + xLabels.map(lbl => `<th>${lbl}</th>`).join('') + `</tr>`;
 
   document.getElementById('trendTableBody').innerHTML = series.map(s => `
@@ -865,10 +866,10 @@ function renderTeam(){
         <div class="tl-table-wrap">
           <table>
             <colgroup>
-              <col style="width: 45%;">
-              <col style="width: 25%;">
-              <col style="width: 15%;">
-              <col style="width: 15%;">
+              <col style="width: 42%;">
+              <col style="width: 18%;">
+              <col style="width: 13%;">
+              <col style="width: 27%;">
             </colgroup>
             <thead><tr><th style="text-align:left">Agent</th><th style="text-align:left">Class</th><th style="text-align:right">Calls</th><th style="text-align:right">AHT</th></tr></thead>
             <tbody>
@@ -876,7 +877,7 @@ function renderTeam(){
                 <td style="text-align:left;font-weight:600;color:var(--ink);" title="${a.name}">${a.name}</td>
                 <td style="text-align:left;"><span class="skill-pill" title="${a.cls}">${a.cls}</span></td>
                 <td style="color:var(--muted);font-weight:600;text-align:right;">${a.n}</td>
-                <td class="mono" style="text-align:right; font-weight:700;">
+                <td class="mono aht-cell" style="text-align:right; font-weight:700;">
                   <span class="${a.aht > 650 ? 'outlier-aht' : ''}" style="color:${a.aht <= 650 ? 'var(--green)' : ''}">${s2mm(a.aht)}</span>
                 </td>
               </tr>`).join('')}
@@ -896,16 +897,16 @@ function toggleAllAccordions(expand) {
 }
 
 /* ─────────────────────────────────────────────
-   CLEAN LEADERBOARD
+   LEADERBOARD
 ───────────────────────────────────────────── */
 function setArenaSort(metric){
   if(ARENA_SORT.metric === metric) ARENA_SORT.asc = !ARENA_SORT.asc;
   else { ARENA_SORT.metric = metric; ARENA_SORT.asc = (metric === 'aht'); }
-  
+
   document.getElementById('sortAHT').className = 'sort-pill' + (ARENA_SORT.metric === 'aht' ? ' active' : '');
   document.getElementById('sortCalls').className = 'sort-pill' + (ARENA_SORT.metric === 'calls' ? ' active' : '');
-  document.getElementById('sortAHT').innerHTML = `⏱️ AHT ${ARENA_SORT.metric==='aht' ? (ARENA_SORT.asc?'▲':'▼') : ''}`;
-  document.getElementById('sortCalls').innerHTML = `📞 Calls Handled ${ARENA_SORT.metric==='calls' ? (ARENA_SORT.asc?'▲':'▼') : ''}`;
+  document.getElementById('sortAHT').innerHTML = `AHT ${ARENA_SORT.metric==='aht' ? (ARENA_SORT.asc?'▲':'▼') : ''}`;
+  document.getElementById('sortCalls').innerHTML = `Calls Handled ${ARENA_SORT.metric==='calls' ? (ARENA_SORT.asc?'▲':'▼') : ''}`;
   renderLeaderboard();
 }
 
@@ -919,7 +920,7 @@ function renderLeaderboard(){
   });
 
   let agents = Object.values(map).filter(a=>a.n>=3).map(a=>({...a, ahtVal:(a.tk+a.hl+a.aw)/a.n}));
-  
+
   if(!agents.length){
     document.getElementById('spacedArenaCont').innerHTML='<p style="padding:40px;color:var(--muted);text-align:center;">Not enough qualifying calls to generate list (min 3 calls)</p>';
     return;
@@ -943,7 +944,7 @@ function renderLeaderboard(){
           <div class="lb-stat-lbl">Calls</div>
           <div class="lb-stat-val" style="color:var(--ink2);">${a.n}</div>
         </div>
-        <div class="lb-stat-group" style="min-width: 65px;">
+        <div class="lb-stat-group">
           <div class="lb-stat-lbl">AHT</div>
           <div class="lb-stat-val">
              <span class="${a.ahtVal > 650 ? 'outlier-aht' : ''}" style="color:${a.ahtVal <= 650 ? 'var(--green)' : ''}">${s2mm(a.ahtVal)}</span>
@@ -973,7 +974,7 @@ function renderAgents(){
     <td style="text-align:left; color:var(--muted); font-weight:500;">${a.apm}</td>
     <td><span class="skill-pill">${a.cls}</span></td>
     <td style="font-weight:600;">${a.n}</td>
-    <td class="mono" style="font-weight:700;"><span class="${a.aht > 650 ? 'outlier-aht' : ''}" style="color:${a.aht <= 650 ? 'var(--green)' : 'inherit'}">${s2mm(a.aht)}</span></td>
+    <td class="mono"><span class="${a.aht > 650 ? 'outlier-aht' : ''}" style="color:${a.aht <= 650 ? 'var(--green)' : 'inherit'}; font-weight:700;">${s2mm(a.aht)}</span></td>
     <td class="mono">${s2mm(a.talk)}</td>
     <td class="mono">${s2mm(a.acw)}</td>
     <td class="mono">${s2mm(a.hold)}</td>
@@ -1018,7 +1019,7 @@ function renderKPIs(){
   document.getElementById('kHandled').textContent=handled.toLocaleString();
   document.getElementById('kAband').textContent=ab.toLocaleString();
   document.getElementById('kAbanPct').textContent=offered?(ab/offered*100).toFixed(1)+'%':'—';
-  
+
   const ahtEl = document.getElementById('kAHT');
   ahtEl.textContent=v!==null?s2mm(v):'—';
   ahtEl.style.color = v!==null ? getAhtColor(v) : 'var(--primary)';
@@ -1031,8 +1032,8 @@ function populateFilters(rebuildTeams = true){
   opt('fCls',[...new Set(RAW.map(r=>r.cls).filter(Boolean))].sort(),'Classifications');
 }
 function renderAll(rebuildTeams = true){
-  populateFilters(rebuildTeams); renderKPIs(); renderHeatmap(); 
-  renderTrends(); renderTeam(); renderLeaderboard(); 
+  populateFilters(rebuildTeams); renderKPIs(); renderHeatmap();
+  renderTrends(); renderTeam(); renderLeaderboard();
   renderAgents(); renderRoster();
 }
 
@@ -1045,7 +1046,7 @@ window.addEventListener('resize', () => { if(RAW.length && document.getElementBy
 function processCSV(data){
   RAW=enrich(data.filter(r=>Object.keys(r).length>2));
   const dates=[...new Set(RAW.map(r=>r._r['DATE']||r._r['Date']).filter(Boolean))].sort();
-  document.getElementById('dateRange').textContent=dates.length===1?`📅 ${dates[0]}`:`📅 ${dates[0]} – ${dates[dates.length-1]}`;
+  document.getElementById('dateRange').textContent=dates.length===1?`${dates[0]}`:`${dates[0]} – ${dates[dates.length-1]}`;
   setStatus(`Synced: ${RAW.length.toLocaleString()} logs`, true);
   renderAll(true);
 }
@@ -1064,21 +1065,21 @@ async function syncLogs(){ld(true,'Fetching call logs…'); await doLogs(); ld(f
 async function syncRosterDB(){ld(true,'Fetching roster…'); await doRoster(); ld(false);}
 
 function doLogs(){return new Promise(res=>{
-  setStatus('⏳ Fetching logs…');
+  setStatus('Fetching logs…');
   Papa.parse(LOGS_URL,{download:true, header:true, skipEmptyLines:true,
-    complete:d=>{processCSV(d.data); res();}, error:()=>{setStatus('❌ Logs fetch failed'); res();}});
+    complete:d=>{processCSV(d.data); res();}, error:()=>{setStatus('Logs fetch failed'); res();}});
 });}
 async function doRoster(){
   try{
     const r=await fetch(ROSTER_URL); if(!r.ok) throw new Error(`HTTP ${r.status}`);
     processXLSX(await r.arrayBuffer());
-  }catch(e){setStatus(`⚠️ Roster fallback required`);}
+  }catch(e){setStatus(`Roster fallback required`);}
 }
 
 function handleCSV(e){const f=e.target.files[0]; if(!f) return; ld(true,`Parsing ${f.name}…`);
-  Papa.parse(f,{header:true, skipEmptyLines:true, complete:d=>{ld(false); processCSV(d.data);}, error:()=>{ld(false); setStatus('❌ Parse failed');}}); e.target.value='';}
+  Papa.parse(f,{header:true, skipEmptyLines:true, complete:d=>{ld(false); processCSV(d.data);}, error:()=>{ld(false); setStatus('Parse failed');}}); e.target.value='';}
 function handleXLS(e){const f=e.target.files[0]; if(!f) return; ld(true,`Loading ${f.name}…`);
-  const rd=new FileReader(); rd.onload=ev=>{ld(false); processXLSX(ev.target.result);}; rd.onerror=()=>{ld(false); setStatus('❌ Read failed');}; rd.readAsArrayBuffer(f); e.target.value='';}
+  const rd=new FileReader(); rd.onload=ev=>{ld(false); processXLSX(ev.target.result);}; rd.onerror=()=>{ld(false); setStatus('Read failed');}; rd.readAsArrayBuffer(f); e.target.value='';}
 
 function exportRoster(){
   const inData=new Set(RAW.map(r=>r.agent).filter(Boolean));
@@ -1103,7 +1104,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
 
 document.querySelectorAll('.m-btn').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.m-btn').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); METRIC=b.dataset.m; 
+  b.classList.add('on'); METRIC=b.dataset.m;
   if(RAW.length){ renderHeatmap(); renderTrends(); }
 }));
 
